@@ -1,3 +1,5 @@
+For v2 requirements, read specs/v2-spec.md before starting.
+
 # CLAUDE.md — AI Learning Homepage
 
 ## Project Overview
