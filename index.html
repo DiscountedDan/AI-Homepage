@@ -40,7 +40,7 @@
     /* ── Header ── */
     header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
 
     header h1 {
@@ -88,6 +88,63 @@
       transition: width 0.3s ease;
     }
 
+    /* ── Add Resource Button ── */
+    .add-resource-btn {
+      display: inline-block;
+      margin-top: 1.25rem;
+      background: var(--accent-primary);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .add-resource-btn:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar-wrap {
+      max-width: 1100px;
+      margin: 0 auto 2rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.4rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .filter-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--accent-muted);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
     /* ── Layout ── */
     main {
       max-width: 1100px;
@@ -112,12 +169,18 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-secondary);
+      white-space: nowrap;
     }
 
     .category-header .divider {
       flex: 1;
       height: 1px;
       background: var(--border);
+    }
+
+    /* ── Completed Section ── */
+    .completed-section .category-header h2 {
+      color: var(--check-done);
     }
 
     /* ── Card Grid ── */
@@ -147,7 +210,7 @@
     }
 
     .card.completed {
-      opacity: 0.6;
+      opacity: 0.65;
     }
 
     .card-top {
@@ -199,6 +262,40 @@
       line-height: 1.55;
     }
 
+    /* ── Review Data on Completed Cards ── */
+    .review-data {
+      margin-top: 0.25rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .review-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .review-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .review-stars {
+      color: #f59e0b;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+
+    .review-summary {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      font-style: italic;
+    }
+
     /* ── Checkbox ── */
     .check-wrap {
       flex-shrink: 0;
@@ -241,6 +338,164 @@
       opacity: 1;
     }
 
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-box h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-resource-name {
+      font-size: 0.88rem;
+      color: var(--accent-primary);
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group input[type="date"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.88rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    .form-group select {
+      cursor: pointer;
+    }
+
+    /* Calendar picker icon color fix for dark mode */
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.6);
+      cursor: pointer;
+    }
+
+    .new-entry-input {
+      margin-top: 0.4rem;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      border: none;
+      color: #fff;
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    /* ── Star Rating ── */
+    .star-rating {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .star {
+      font-size: 1.6rem;
+      color: var(--border);
+      cursor: pointer;
+      transition: color 0.1s;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .star.active {
+      color: #f59e0b;
+    }
+
     /* ── Footer ── */
     footer {
       text-align: center;
@@ -249,10 +504,16 @@
       font-size: 0.8rem;
     }
 
+    /* ── Hidden utility ── */
+    .hidden {
+      display: none !important;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
       .card-grid { grid-template-columns: 1fr; }
+      .modal-box { padding: 1.25rem; }
     }
   </style>
 </head>
@@ -270,289 +531,535 @@
         <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
       </div>
     </div>
+    <button id="add-resource-btn" class="add-resource-btn">+ Add Resource</button>
   </header>
 
-  <main>
+  <!-- ── Filter Bar ── -->
+  <div class="filter-bar-wrap">
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="open">Open</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+    </div>
+  </div>
 
-    <!-- ── CATEGORY 1: GitHub Repos & Skills ── -->
-    <!-- To add a new link here: copy a .card block and update title, href, tag, and description -->
-    <section class="category">
-      <div class="category-header">
-        <h2>GitHub Repos &amp; Skills</h2>
-        <div class="divider"></div>
-      </div>
-      <div class="card-grid">
-
-        <div class="card" id="card-0">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://github.com/nidhinjs/prompt-master" target="_blank" rel="noopener">Prompt Master</a>
-              </div>
-              <span class="tag">Skill</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="0" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Claude skill that writes accurate, optimized prompts for any AI tool.</p>
-        </div>
-
-        <div class="card" id="card-1">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools" target="_blank" rel="noopener">System Prompts</a>
-              </div>
-              <span class="tag">Repo</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="1" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">System prompts from top AI companies — useful for studying instruction design and patterns.</p>
-        </div>
-
-        <div class="card" id="card-2">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://github.com/anthropics" target="_blank" rel="noopener">Anthropic GitHub</a>
-              </div>
-              <span class="tag">Repo</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="2" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Official Anthropic repos including agents, skills, SDKs, and guides.</p>
-        </div>
-
-        <div class="card" id="card-3">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://github.com/Shubhamsaboo/awesome-llm-apps/blob/main/awesome_agent_skills/fact-checker/SKILL.md" target="_blank" rel="noopener">Factchecker Skill</a>
-              </div>
-              <span class="tag">Skill</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="3" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Fact-checker skill for Claude — verifies claims and sources in real time.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ── CATEGORY 2: Anthropic Learning ── -->
-    <!-- To add a new link here: copy a .card block and update title, href, tag, and description -->
-    <section class="category">
-      <div class="category-header">
-        <h2>Anthropic Learning</h2>
-        <div class="divider"></div>
-      </div>
-      <div class="card-grid">
-
-        <div class="card" id="card-4">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://platform.claude.com/docs/en/home" target="_blank" rel="noopener">Claude API Docs</a>
-              </div>
-              <span class="tag">Docs</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="4" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Official reference for the Claude API — covers coding, automation, and advanced integrations.</p>
-        </div>
-
-        <div class="card" id="card-5">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" target="_blank" rel="noopener">Claude Agents Guide</a>
-              </div>
-              <span class="tag">Guide</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="5" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">How to build and use Claude agents — architecture, tools, and skill integration overview.</p>
-        </div>
-
-        <div class="card" id="card-6">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://anthropic.skilljar.com/" target="_blank" rel="noopener">Anthropic Courses</a>
-              </div>
-              <span class="tag">Course</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="6" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Official Anthropic courses for structured, guided learning on Claude and AI development.</p>
-        </div>
-
-        <div class="card" id="card-7">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://claude.com/plugins/superpowers" target="_blank" rel="noopener">Superpowers Plugin</a>
-              </div>
-              <span class="tag">Plugin</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="7" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Claude Code skills plugin for advanced development workflows and productivity boosts.</p>
-        </div>
-
-        <div class="card" id="card-8">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://code.claude.com/docs/en/quickstart" target="_blank" rel="noopener">Claude Code Quickstart</a>
-              </div>
-              <span class="tag">Docs</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="8" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Anthropic's official quickstart guide for getting up and running with Claude Code fast.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ── CATEGORY 3: Community & Media ── -->
-    <!-- To add a new link here: copy a .card block and update title, href, tag, and description -->
-    <section class="category">
-      <div class="category-header">
-        <h2>Community &amp; Media</h2>
-        <div class="divider"></div>
-      </div>
-      <div class="card-grid">
-
-        <div class="card" id="card-9">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://www.reddit.com/r/ClaudeAI/comments/1rxyarx/i_built_a_claude_skill_that_writes_accurate/" target="_blank" rel="noopener">Reddit: Prompt Master</a>
-              </div>
-              <span class="tag">Community</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="9" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">Community post introducing the Prompt Master skill — discussion, tips, and use cases.</p>
-        </div>
-
-        <div class="card" id="card-10">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://www.reddit.com/r/ClaudeCowork/comments/1s3ljzh/6_skills_i_actually_use_every_day/" target="_blank" rel="noopener">Reddit: Claude Skills</a>
-              </div>
-              <span class="tag">Community</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="10" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">6 Claude skills used daily — includes paths and steps for installing each skill.</p>
-        </div>
-
-        <div class="card" id="card-11">
-          <div class="card-top">
-            <div class="card-title-wrap">
-              <div class="card-title">
-                <a href="https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f" target="_blank" rel="noopener">YouTube: GitHub Beginners Guide</a>
-              </div>
-              <span class="tag">Video</span>
-            </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="11" title="Mark as completed" />
-            </div>
-          </div>
-          <p class="card-desc">10-video playlist covering GitHub basics — ideal starting point for version control fundamentals.</p>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
+  <!-- ── Main content — rendered dynamically from localStorage ── -->
+  <main id="main-content"></main>
 
   <footer>
     <p>Open locally in any browser &mdash; no server required.</p>
   </footer>
 
-  <script>
-    const TOTAL = 12;
-    const STORAGE_KEY = 'ai-hub-completed';
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Add Resource Modal                                         -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="add-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Add Resource</h2>
+      <form id="add-form">
 
-    // Load saved state from localStorage
-    function loadState() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-      } catch {
-        return {};
+        <div class="form-group">
+          <label for="res-title">Title</label>
+          <input type="text" id="res-title" placeholder="Resource name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="res-url">URL</label>
+          <input type="url" id="res-url" placeholder="https://..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="res-desc">Description</label>
+          <textarea id="res-desc" placeholder="1–2 sentences about this resource" required></textarea>
+        </div>
+
+        <!-- Resource Type — dropdown with inline "Add New" option -->
+        <div class="form-group">
+          <label for="res-type">Resource Type</label>
+          <select id="res-type"></select>
+          <input type="text" id="res-type-new" class="hidden new-entry-input" placeholder="New type name...">
+        </div>
+
+        <!-- Category — dropdown with inline "Add New" option -->
+        <div class="form-group">
+          <label for="res-category">Category</label>
+          <select id="res-category"></select>
+          <input type="text" id="res-category-new" class="hidden new-entry-input" placeholder="New category name...">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="add-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Add Resource</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Review Modal — triggered when a card is checked           -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="review-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Quick Review</h2>
+      <p id="review-resource-name" class="modal-resource-name"></p>
+      <form id="review-form">
+
+        <div class="form-group">
+          <label for="review-date">Date Completed</label>
+          <input type="date" id="review-date">
+        </div>
+
+        <div class="form-group">
+          <label for="review-summary">What did you learn?</label>
+          <textarea id="review-summary" placeholder="1–3 sentences..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="review-type">Resource Type</label>
+          <input type="text" id="review-type">
+        </div>
+
+        <div class="form-group">
+          <label>Rating</label>
+          <div class="star-rating" id="star-rating">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="review-skip">Skip Review</button>
+          <button type="submit" class="btn-primary">Save Review</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    // CONSTANTS & SEED DATA
+    //
+    // To add seed resources: push an object to SEED_RESOURCES.
+    // To add seed categories: push a string to SEED_CATEGORIES.
+    // To add seed resource types: push a string to SEED_TYPES.
+    // ═══════════════════════════════════════════════════════════
+
+    const KEYS = {
+      resources:  'ai_resources',
+      categories: 'ai_categories',
+      types:      'ai_resource_types',
+      completion: 'ai_completion_data',
+    };
+
+    const SEED_RESOURCES = [
+      // ── GitHub Repos & Skills ──────────────────────────────────────────
+      { id: 0,  title: 'Prompt Master',           url: 'https://github.com/nidhinjs/prompt-master',                                                                                              description: 'Claude skill that writes accurate prompts for any AI tool.',          type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 1,  title: 'System Prompts',           url: 'https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools',                                                                     description: 'System prompts from top AI companies; useful for instruction ideas.',  type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 2,  title: 'Anthropic GitHub',         url: 'https://github.com/anthropics',                                                                                                         description: 'Official Anthropic repos including agents, skills, and guides.',       type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 3,  title: 'Factchecker Skill',        url: 'https://github.com/Shubhamsaboo/awesome-llm-apps/blob/main/awesome_agent_skills/fact-checker/SKILL.md',                                description: 'Fact-checker skill for Claude.',                                       type: 'GitHub', category: 'GitHub Repos & Skills' },
+      // ── Anthropic Learning ────────────────────────────────────────────
+      { id: 4,  title: 'Claude API Docs',          url: 'https://platform.claude.com/docs/en/home',                                                                                              description: 'Learn APIs and advanced coding/automation.',                           type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 5,  title: 'Claude Agents Guide',      url: 'https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview',                                                           description: 'How to build and use Claude agents.',                                 type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 6,  title: 'Anthropic Courses',        url: 'https://anthropic.skilljar.com/',                                                                                                       description: 'Official Anthropic courses for structured learning.',                  type: 'Course', category: 'Anthropic Learning' },
+      { id: 7,  title: 'Superpowers Plugin',       url: 'https://claude.com/plugins/superpowers',                                                                                                description: 'Claude Code skills for advanced development workflows.',               type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 8,  title: 'Claude Code Quickstart',   url: 'https://code.claude.com/docs/en/quickstart',                                                                                           description: 'Basics of Claude Code from Anthropic.',                               type: 'Docs',   category: 'Anthropic Learning' },
+      // ── Community & Media ─────────────────────────────────────────────
+      { id: 9,  title: 'Reddit: Prompt Master',    url: 'https://www.reddit.com/r/ClaudeAI/comments/1rxyarx/i_built_a_claude_skill_that_writes_accurate/',                                      description: 'Community post about the Prompt Master skill.',                        type: 'Reddit', category: 'Community & Media' },
+      { id: 10, title: 'Reddit: Claude Skills',    url: 'https://www.reddit.com/r/ClaudeCowork/comments/1s3ljzh/6_skills_i_actually_use_every_day/',                                            description: '6 Claude skills used daily; paths to add skills.',                    type: 'Reddit', category: 'Community & Media' },
+      { id: 11, title: 'YouTube: GitHub Beginners',url: 'https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f',                                                description: '10-video playlist for learning GitHub basics.',                        type: 'Video',  category: 'Community & Media' },
+    ];
+
+    const SEED_CATEGORIES = ['GitHub Repos & Skills', 'Anthropic Learning', 'Community & Media'];
+    const SEED_TYPES      = ['GitHub', 'Video', 'Docs', 'Reddit', 'Course', 'Other'];
+
+    // ═══════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════
+
+    let currentFilter       = 'all';
+    let pendingCompletionId = null;
+    let selectedRating      = 0;
+
+    // ═══════════════════════════════════════════════════════════
+    // LOCALSTORAGE HELPERS
+    // ═══════════════════════════════════════════════════════════
+
+    function load(key) {
+      try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+    }
+
+    function save(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ESCAPE HELPER — prevents XSS in dynamically built HTML
+    // ═══════════════════════════════════════════════════════════
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INIT — seeds localStorage on first load;
+    //         migrates v1 completion state if present
+    // ═══════════════════════════════════════════════════════════
+
+    function initData() {
+      if (load(KEYS.resources) !== null) return; // already seeded
+
+      // Migrate v1 checkbox state (stored under 'ai-hub-completed')
+      let v1State = {};
+      try { v1State = JSON.parse(localStorage.getItem('ai-hub-completed')) || {}; } catch {}
+
+      const completionData = {};
+      SEED_RESOURCES.forEach(r => {
+        if (v1State[String(r.id)]) {
+          completionData[r.id] = { completed: true, dateCompleted: '', summary: '', type: r.type, rating: 0 };
+        }
+      });
+
+      save(KEYS.resources,  SEED_RESOURCES);
+      save(KEYS.categories, SEED_CATEGORIES);
+      save(KEYS.types,      SEED_TYPES);
+      save(KEYS.completion, completionData);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // RENDER
+    // ═══════════════════════════════════════════════════════════
+
+    function renderAll() {
+      const resources      = load(KEYS.resources)  || [];
+      const categories     = load(KEYS.categories) || [];
+      const completionData = load(KEYS.completion) || {};
+
+      const main = document.getElementById('main-content');
+      main.innerHTML = '';
+
+      const openResources      = resources.filter(r => !completionData[r.id]?.completed);
+      const completedResources = resources.filter(r =>  completionData[r.id]?.completed);
+
+      // ── Category sections (visible in All or Open) ──
+      if (currentFilter !== 'completed') {
+        categories.forEach(cat => {
+          const cards = openResources.filter(r => r.category === cat);
+          if (cards.length === 0) return; // hide empty categories
+          main.appendChild(buildCategorySection(cat, cards));
+        });
+      }
+
+      // ── Completed section (visible in All or Completed) ──
+      if (currentFilter !== 'open' && completedResources.length > 0) {
+        main.appendChild(buildCompletedSection(completedResources, completionData));
+      }
+
+      updateProgress(resources, completionData);
+    }
+
+    function buildCategorySection(name, resources) {
+      const section = document.createElement('section');
+      section.className = 'category';
+
+      const header = document.createElement('div');
+      header.className = 'category-header';
+      header.innerHTML = `<h2>${esc(name)}</h2><div class="divider"></div>`;
+
+      const grid = document.createElement('div');
+      grid.className = 'card-grid';
+      resources.forEach(r => grid.appendChild(buildCard(r, false, null)));
+
+      section.appendChild(header);
+      section.appendChild(grid);
+      return section;
+    }
+
+    function buildCompletedSection(resources, completionData) {
+      const section = document.createElement('section');
+      section.className = 'category completed-section';
+
+      const header = document.createElement('div');
+      header.className = 'category-header';
+      header.innerHTML = `<h2>Completed Resources</h2><div class="divider"></div>`;
+
+      const grid = document.createElement('div');
+      grid.className = 'card-grid';
+      resources.forEach(r => grid.appendChild(buildCard(r, true, completionData[r.id])));
+
+      section.appendChild(header);
+      section.appendChild(grid);
+      return section;
+    }
+
+    function buildCard(resource, isCompleted, reviewData) {
+      const card = document.createElement('div');
+      card.className = 'card' + (isCompleted ? ' completed' : '');
+
+      // Build review data block for completed cards
+      let reviewHtml = '';
+      if (isCompleted && reviewData) {
+        const metaParts = [];
+        if (reviewData.dateCompleted) metaParts.push(`<span class="review-date">${esc(reviewData.dateCompleted)}</span>`);
+        if (reviewData.rating)        metaParts.push(`<span class="review-stars">${'\u2605'.repeat(reviewData.rating)}${'\u2606'.repeat(5 - reviewData.rating)}</span>`);
+        const metaHtml    = metaParts.length ? `<div class="review-meta">${metaParts.join('')}</div>` : '';
+        const summaryHtml = reviewData.summary ? `<p class="review-summary">${esc(reviewData.summary)}</p>` : '';
+        if (metaHtml || summaryHtml) {
+          reviewHtml = `<div class="review-data">${metaHtml}${summaryHtml}</div>`;
+        }
+      }
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-title-wrap">
+            <div class="card-title">
+              <a href="${esc(resource.url)}" target="_blank" rel="noopener">${esc(resource.title)}</a>
+            </div>
+            <span class="tag">${esc(resource.type)}</span>
+          </div>
+          <div class="check-wrap">
+            <input type="checkbox" data-id="${esc(String(resource.id))}" title="Mark as completed"${isCompleted ? ' checked' : ''}>
+          </div>
+        </div>
+        <p class="card-desc">${esc(resource.description)}</p>
+        ${reviewHtml}
+      `;
+
+      card.querySelector('input[type="checkbox"]').addEventListener('change', function () {
+        handleCheckboxChange(resource.id, this.checked);
+      });
+
+      return card;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CHECKBOX HANDLER
+    // ═══════════════════════════════════════════════════════════
+
+    function handleCheckboxChange(resourceId, isChecked) {
+      if (isChecked) {
+        pendingCompletionId = resourceId;
+        openReviewModal(resourceId);
+      } else {
+        // Uncheck: remove from completion data, return card to its category
+        const completionData = load(KEYS.completion) || {};
+        delete completionData[resourceId];
+        save(KEYS.completion, completionData);
+        renderAll();
       }
     }
 
-    // Save state to localStorage
-    function saveState(state) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+    // ═══════════════════════════════════════════════════════════
+    // PROGRESS BAR
+    // ═══════════════════════════════════════════════════════════
 
-    // Update progress bar and label
-    function updateProgress(state) {
-      const count = Object.values(state).filter(Boolean).length;
-      const pct = Math.round((count / TOTAL) * 100);
-      document.getElementById('progress-text').textContent = `${count} / ${TOTAL} completed`;
+    function updateProgress(resources, completionData) {
+      const total = resources.length;
+      const done  = Object.values(completionData).filter(d => d.completed).length;
+      const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+      document.getElementById('progress-text').textContent = `${done} / ${total} completed`;
       document.getElementById('progress-fill').style.width = `${pct}%`;
     }
 
-    // Apply completed styling to a card
-    function applyCardState(card, checked) {
-      if (checked) {
-        card.classList.add('completed');
-      } else {
-        card.classList.remove('completed');
-      }
-    }
+    // ═══════════════════════════════════════════════════════════
+    // FILTER BAR
+    // ═══════════════════════════════════════════════════════════
 
-    // Initialize
-    const state = loadState();
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-    checkboxes.forEach(cb => {
-      const id = cb.dataset.id;
-      const card = document.getElementById(`card-${id}`);
-
-      // Restore saved state
-      cb.checked = !!state[id];
-      applyCardState(card, cb.checked);
-
-      // Listen for changes
-      cb.addEventListener('change', () => {
-        state[id] = cb.checked;
-        saveState(state);
-        applyCardState(card, cb.checked);
-        updateProgress(state);
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+        renderAll();
       });
     });
 
-    updateProgress(state);
+    // ═══════════════════════════════════════════════════════════
+    // ADD RESOURCE MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const addModal     = document.getElementById('add-modal');
+    const addForm      = document.getElementById('add-form');
+    const typeSelect   = document.getElementById('res-type');
+    const catSelect    = document.getElementById('res-category');
+    const typeNewInput = document.getElementById('res-type-new');
+    const catNewInput  = document.getElementById('res-category-new');
+
+    document.getElementById('add-resource-btn').addEventListener('click', openAddModal);
+    document.getElementById('add-cancel').addEventListener('click', closeAddModal);
+    // Click outside modal box to dismiss
+    addModal.addEventListener('click', e => { if (e.target === addModal) closeAddModal(); });
+
+    function openAddModal() {
+      const types      = load(KEYS.types)      || SEED_TYPES;
+      const categories = load(KEYS.categories) || SEED_CATEGORIES;
+
+      // Populate type dropdown
+      typeSelect.innerHTML =
+        types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('') +
+        '<option value="__new__">Add New Type...</option>';
+
+      // Populate category dropdown
+      catSelect.innerHTML =
+        categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('') +
+        '<option value="__new__">Add New Category...</option>';
+
+      addForm.reset();
+      typeNewInput.classList.add('hidden');
+      typeNewInput.required = false;
+      catNewInput.classList.add('hidden');
+      catNewInput.required = false;
+
+      addModal.classList.remove('hidden');
+      document.getElementById('res-title').focus();
+    }
+
+    function closeAddModal() {
+      addModal.classList.add('hidden');
+    }
+
+    // Show/hide inline new-type input
+    typeSelect.addEventListener('change', function () {
+      const isNew = this.value === '__new__';
+      typeNewInput.classList.toggle('hidden', !isNew);
+      typeNewInput.required = isNew;
+      if (isNew) typeNewInput.focus();
+    });
+
+    // Show/hide inline new-category input
+    catSelect.addEventListener('change', function () {
+      const isNew = this.value === '__new__';
+      catNewInput.classList.toggle('hidden', !isNew);
+      catNewInput.required = isNew;
+      if (isNew) catNewInput.focus();
+    });
+
+    addForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const title = document.getElementById('res-title').value.trim();
+      const url   = document.getElementById('res-url').value.trim();
+      const desc  = document.getElementById('res-desc').value.trim();
+      if (!title || !url || !desc) return;
+
+      // Resolve type — save new type to localStorage if needed
+      let type = typeSelect.value;
+      if (type === '__new__') {
+        type = typeNewInput.value.trim();
+        if (!type) { typeNewInput.focus(); return; }
+        const types = load(KEYS.types) || [];
+        if (!types.includes(type)) { types.push(type); save(KEYS.types, types); }
+      }
+
+      // Resolve category — save new category to localStorage if needed
+      let category = catSelect.value;
+      if (category === '__new__') {
+        category = catNewInput.value.trim();
+        if (!category) { catNewInput.focus(); return; }
+        const categories = load(KEYS.categories) || [];
+        if (!categories.includes(category)) { categories.push(category); save(KEYS.categories, categories); }
+      }
+
+      // Save resource and re-render
+      const resources = load(KEYS.resources) || [];
+      resources.push({ id: Date.now(), title, url, description: desc, type, category });
+      save(KEYS.resources, resources);
+
+      closeAddModal();
+
+      // Switch filter so the new card is visible
+      if (currentFilter === 'completed') {
+        currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.filter === 'all')
+        );
+      }
+
+      renderAll();
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // REVIEW MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const reviewModal = document.getElementById('review-modal');
+    const reviewForm  = document.getElementById('review-form');
+
+    // Click outside modal box = skip (card still moves to Completed)
+    reviewModal.addEventListener('click', e => { if (e.target === reviewModal) submitReview(false); });
+    document.getElementById('review-skip').addEventListener('click', () => submitReview(false));
+    reviewForm.addEventListener('submit', e => { e.preventDefault(); submitReview(true); });
+
+    // ── Star rating ──
+    document.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.value, 10);
+        updateStars();
+      });
+      star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value, 10)));
+      star.addEventListener('mouseout',  updateStars);
+    });
+
+    function highlightStars(upTo) {
+      document.querySelectorAll('.star').forEach(s =>
+        s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)
+      );
+    }
+
+    function updateStars() { highlightStars(selectedRating); }
+
+    function openReviewModal(resourceId) {
+      const resources = load(KEYS.resources) || [];
+      const resource  = resources.find(r => r.id == resourceId); // == handles number/string coercion
+      if (!resource) return;
+
+      selectedRating = 0;
+      reviewForm.reset();
+      updateStars();
+
+      document.getElementById('review-resource-name').textContent = resource.title;
+      document.getElementById('review-type').value = resource.type;
+      document.getElementById('review-date').value = new Date().toISOString().split('T')[0];
+
+      reviewModal.classList.remove('hidden');
+    }
+
+    function submitReview(withData) {
+      if (pendingCompletionId === null) return;
+
+      const completionData = load(KEYS.completion) || {};
+
+      completionData[pendingCompletionId] = withData
+        ? {
+            completed:     true,
+            dateCompleted: document.getElementById('review-date').value,
+            summary:       document.getElementById('review-summary').value.trim(),
+            type:          document.getElementById('review-type').value.trim(),
+            rating:        selectedRating,
+          }
+        : { completed: true, dateCompleted: '', summary: '', type: '', rating: 0 };
+
+      save(KEYS.completion, completionData);
+      pendingCompletionId = null;
+      reviewModal.classList.add('hidden');
+      renderAll();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════════════════
+
+    initData();
+    renderAll();
+
   </script>
 
 </body>
