@@ -483,7 +483,7 @@
       gap: 0.2rem;
     }
 
-    .star {
+    .star, .edit-star {
       font-size: 1.6rem;
       color: var(--border);
       cursor: pointer;
@@ -492,7 +492,7 @@
       user-select: none;
     }
 
-    .star.active {
+    .star.active, .edit-star.active {
       color: #f59e0b;
     }
 
@@ -502,6 +502,101 @@
       margin-top: 3rem;
       color: var(--text-muted);
       font-size: 0.8rem;
+    }
+
+    /* ── Card Actions (gear + checkbox wrapper) ── */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Gear Button ── */
+    .gear-wrap {
+      position: relative;
+    }
+
+    .gear-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .gear-btn:hover {
+      color: var(--accent-teal);
+    }
+
+    /* ── Settings Dropdown ── */
+    .settings-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.3rem;
+      z-index: 50;
+      min-width: 130px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .settings-option {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      font-family: inherit;
+      text-align: left;
+      padding: 0.4rem 0.65rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .settings-option:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .settings-option.delete-option {
+      color: #f87171;
+    }
+
+    .settings-option.delete-option:hover {
+      background: rgba(248, 113, 113, 0.1);
+      color: #fca5a5;
+    }
+
+    /* ── Danger Button (delete confirm) ── */
+    .btn-danger {
+      background: #dc2626;
+      border: none;
+      color: #fff;
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
     }
 
     /* ── Hidden utility ── */
@@ -640,6 +735,109 @@
     </div>
   </div>
 
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Edit Card Modal                                           -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="edit-card-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Edit Resource</h2>
+      <form id="edit-card-form">
+
+        <div class="form-group">
+          <label for="edit-title">Title</label>
+          <input type="text" id="edit-title" placeholder="Resource name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-url">URL</label>
+          <input type="url" id="edit-url" placeholder="https://..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-desc">Description</label>
+          <textarea id="edit-desc" placeholder="1–2 sentences about this resource" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-type">Resource Type</label>
+          <select id="edit-type"></select>
+          <input type="text" id="edit-type-new" class="hidden new-entry-input" placeholder="New type name...">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-category">Category</label>
+          <select id="edit-category"></select>
+          <input type="text" id="edit-category-new" class="hidden new-entry-input" placeholder="New category name...">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="edit-card-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Delete Confirmation Modal                                  -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Delete Resource</h2>
+      <p id="delete-resource-name" class="modal-resource-name"></p>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">This cannot be undone.</p>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" id="delete-cancel">Cancel</button>
+        <button type="button" class="btn-danger" id="delete-confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Edit Review Modal                                          -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="edit-review-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Edit Review</h2>
+      <p id="edit-review-resource-name" class="modal-resource-name"></p>
+      <form id="edit-review-form">
+
+        <div class="form-group">
+          <label for="edit-review-date">Date Completed</label>
+          <input type="date" id="edit-review-date">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-review-summary">What did you learn?</label>
+          <textarea id="edit-review-summary" placeholder="1–3 sentences..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-review-type">Resource Type</label>
+          <input type="text" id="edit-review-type">
+        </div>
+
+        <div class="form-group">
+          <label>Rating</label>
+          <div class="star-rating" id="edit-star-rating">
+            <span class="edit-star" data-value="1">&#9733;</span>
+            <span class="edit-star" data-value="2">&#9733;</span>
+            <span class="edit-star" data-value="3">&#9733;</span>
+            <span class="edit-star" data-value="4">&#9733;</span>
+            <span class="edit-star" data-value="5">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="edit-review-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Review</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
   <script>
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS & SEED DATA
@@ -684,6 +882,10 @@
     let currentFilter       = 'all';
     let pendingCompletionId = null;
     let selectedRating      = 0;
+    let pendingEditId        = null;
+    let pendingDeleteId      = null;
+    let pendingEditReviewId  = null;
+    let editSelectedRating   = 0;
 
     // ═══════════════════════════════════════════════════════════
     // LOCALSTORAGE HELPERS
@@ -734,6 +936,23 @@
       save(KEYS.types,      SEED_TYPES);
       save(KEYS.completion, completionData);
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // UI UTILITIES
+    // ═══════════════════════════════════════════════════════════
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+    }
+
+    function closeAllSettingsMenus() {
+      document.querySelectorAll('.settings-menu').forEach(m => m.classList.add('hidden'));
+    }
+
+    // Close settings menus on any click outside a gear-wrap
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.gear-wrap')) closeAllSettingsMenus();
+    });
 
     // ═══════════════════════════════════════════════════════════
     // RENDER
@@ -818,6 +1037,10 @@
         }
       }
 
+      const editReviewOption = isCompleted
+        ? `<button class="settings-option" data-action="edit-review">Edit Review</button>`
+        : '';
+
       card.innerHTML = `
         <div class="card-top">
           <div class="card-title-wrap">
@@ -826,8 +1049,18 @@
             </div>
             <span class="tag">${esc(resource.type)}</span>
           </div>
-          <div class="check-wrap">
-            <input type="checkbox" data-id="${esc(String(resource.id))}" title="Mark as completed"${isCompleted ? ' checked' : ''}>
+          <div class="card-actions">
+            <div class="gear-wrap">
+              <button class="gear-btn" title="Settings">&#9881;</button>
+              <div class="settings-menu hidden">
+                <button class="settings-option" data-action="edit-card">Edit Card</button>
+                ${editReviewOption}
+                <button class="settings-option delete-option" data-action="delete">Delete</button>
+              </div>
+            </div>
+            <div class="check-wrap">
+              <input type="checkbox" data-id="${esc(String(resource.id))}" title="Mark as completed"${isCompleted ? ' checked' : ''}>
+            </div>
           </div>
         </div>
         <p class="card-desc">${esc(resource.description)}</p>
@@ -836,6 +1069,27 @@
 
       card.querySelector('input[type="checkbox"]').addEventListener('change', function () {
         handleCheckboxChange(resource.id, this.checked);
+      });
+
+      const gearBtn      = card.querySelector('.gear-btn');
+      const settingsMenu = card.querySelector('.settings-menu');
+
+      gearBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = !settingsMenu.classList.contains('hidden');
+        closeAllSettingsMenus();
+        if (!isOpen) settingsMenu.classList.remove('hidden');
+      });
+
+      card.querySelectorAll('.settings-option').forEach(opt => {
+        opt.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeAllSettingsMenus();
+          const action = this.dataset.action;
+          if (action === 'edit-card')    openEditCardModal(resource.id);
+          else if (action === 'edit-review') openEditReviewModal(resource.id);
+          else if (action === 'delete')  openDeleteModal(resource.id);
+        });
       });
 
       return card;
@@ -1050,6 +1304,223 @@
       save(KEYS.completion, completionData);
       pendingCompletionId = null;
       reviewModal.classList.add('hidden');
+      renderAll();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EDIT CARD MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const editCardModal    = document.getElementById('edit-card-modal');
+    const editCardForm     = document.getElementById('edit-card-form');
+    const editTypeSelect   = document.getElementById('edit-type');
+    const editCatSelect    = document.getElementById('edit-category');
+    const editTypeNewInput = document.getElementById('edit-type-new');
+    const editCatNewInput  = document.getElementById('edit-category-new');
+
+    document.getElementById('edit-card-cancel').addEventListener('click', closeEditCardModal);
+    editCardModal.addEventListener('click', e => { if (e.target === editCardModal) closeEditCardModal(); });
+
+    editTypeSelect.addEventListener('change', function () {
+      const isNew = this.value === '__new__';
+      editTypeNewInput.classList.toggle('hidden', !isNew);
+      editTypeNewInput.required = isNew;
+      if (isNew) editTypeNewInput.focus();
+    });
+
+    editCatSelect.addEventListener('change', function () {
+      const isNew = this.value === '__new__';
+      editCatNewInput.classList.toggle('hidden', !isNew);
+      editCatNewInput.required = isNew;
+      if (isNew) editCatNewInput.focus();
+    });
+
+    function openEditCardModal(resourceId) {
+      const resources = load(KEYS.resources) || [];
+      const resource  = resources.find(r => r.id == resourceId);
+      if (!resource) return;
+
+      pendingEditId = resourceId;
+
+      const types      = load(KEYS.types)      || SEED_TYPES;
+      const categories = load(KEYS.categories) || SEED_CATEGORIES;
+
+      editTypeSelect.innerHTML =
+        types.map(t => `<option value="${esc(t)}"${t === resource.type ? ' selected' : ''}>${esc(t)}</option>`).join('') +
+        '<option value="__new__">Add New Type...</option>';
+
+      editCatSelect.innerHTML =
+        categories.map(c => `<option value="${esc(c)}"${c === resource.category ? ' selected' : ''}>${esc(c)}</option>`).join('') +
+        '<option value="__new__">Add New Category...</option>';
+
+      editTypeNewInput.classList.add('hidden');
+      editTypeNewInput.required = false;
+      editCatNewInput.classList.add('hidden');
+      editCatNewInput.required = false;
+
+      document.getElementById('edit-title').value = resource.title;
+      document.getElementById('edit-url').value   = resource.url;
+      document.getElementById('edit-desc').value  = resource.description;
+
+      closeAllModals();
+      editCardModal.classList.remove('hidden');
+      document.getElementById('edit-title').focus();
+    }
+
+    function closeEditCardModal() {
+      editCardModal.classList.add('hidden');
+      pendingEditId = null;
+    }
+
+    editCardForm.addEventListener('submit', e => {
+      e.preventDefault();
+      if (pendingEditId === null) return;
+
+      const title = document.getElementById('edit-title').value.trim();
+      const url   = document.getElementById('edit-url').value.trim();
+      const desc  = document.getElementById('edit-desc').value.trim();
+      if (!title || !url || !desc) return;
+
+      let type = editTypeSelect.value;
+      if (type === '__new__') {
+        type = editTypeNewInput.value.trim();
+        if (!type) { editTypeNewInput.focus(); return; }
+        const types = load(KEYS.types) || [];
+        if (!types.includes(type)) { types.push(type); save(KEYS.types, types); }
+      }
+
+      let category = editCatSelect.value;
+      if (category === '__new__') {
+        category = editCatNewInput.value.trim();
+        if (!category) { editCatNewInput.focus(); return; }
+        const categories = load(KEYS.categories) || [];
+        if (!categories.includes(category)) { categories.push(category); save(KEYS.categories, categories); }
+      }
+
+      const resources = load(KEYS.resources) || [];
+      const idx = resources.findIndex(r => r.id == pendingEditId);
+      if (idx !== -1) {
+        resources[idx] = { ...resources[idx], title, url, description: desc, type, category };
+        save(KEYS.resources, resources);
+      }
+
+      closeEditCardModal();
+      renderAll();
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // DELETE MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const deleteModal = document.getElementById('delete-modal');
+
+    document.getElementById('delete-cancel').addEventListener('click', closeDeleteModal);
+    document.getElementById('delete-confirm').addEventListener('click', confirmDelete);
+    deleteModal.addEventListener('click', e => { if (e.target === deleteModal) closeDeleteModal(); });
+
+    function openDeleteModal(resourceId) {
+      const resources = load(KEYS.resources) || [];
+      const resource  = resources.find(r => r.id == resourceId);
+      if (!resource) return;
+
+      pendingDeleteId = resourceId;
+      document.getElementById('delete-resource-name').textContent =
+        `Are you sure you want to delete "${resource.title}"?`;
+
+      closeAllModals();
+      deleteModal.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.add('hidden');
+      pendingDeleteId = null;
+    }
+
+    function confirmDelete() {
+      if (pendingDeleteId === null) return;
+
+      const resources = (load(KEYS.resources) || []).filter(r => r.id != pendingDeleteId);
+      save(KEYS.resources, resources);
+
+      const completionData = load(KEYS.completion) || {};
+      delete completionData[pendingDeleteId];
+      save(KEYS.completion, completionData);
+
+      closeDeleteModal();
+      renderAll();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EDIT REVIEW MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const editReviewModal = document.getElementById('edit-review-modal');
+    const editReviewForm  = document.getElementById('edit-review-form');
+
+    document.getElementById('edit-review-cancel').addEventListener('click', closeEditReviewModal);
+    editReviewModal.addEventListener('click', e => { if (e.target === editReviewModal) closeEditReviewModal(); });
+    editReviewForm.addEventListener('submit', e => { e.preventDefault(); saveEditReview(); });
+
+    document.querySelectorAll('.edit-star').forEach(star => {
+      star.addEventListener('click', () => {
+        editSelectedRating = parseInt(star.dataset.value, 10);
+        updateEditStars();
+      });
+      star.addEventListener('mouseover', () => highlightEditStars(parseInt(star.dataset.value, 10)));
+      star.addEventListener('mouseout',  updateEditStars);
+    });
+
+    function highlightEditStars(upTo) {
+      document.querySelectorAll('.edit-star').forEach(s =>
+        s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)
+      );
+    }
+
+    function updateEditStars() { highlightEditStars(editSelectedRating); }
+
+    function openEditReviewModal(resourceId) {
+      const resources = load(KEYS.resources) || [];
+      const resource  = resources.find(r => r.id == resourceId);
+      if (!resource) return;
+
+      const completionData = load(KEYS.completion) || {};
+      const review = completionData[resourceId] || {};
+
+      pendingEditReviewId = resourceId;
+      editSelectedRating  = review.rating || 0;
+
+      document.getElementById('edit-review-resource-name').textContent = resource.title;
+      document.getElementById('edit-review-date').value    = review.dateCompleted || new Date().toISOString().split('T')[0];
+      document.getElementById('edit-review-summary').value = review.summary || '';
+      document.getElementById('edit-review-type').value    = review.type || resource.type || '';
+
+      updateEditStars();
+
+      closeAllModals();
+      editReviewModal.classList.remove('hidden');
+    }
+
+    function closeEditReviewModal() {
+      editReviewModal.classList.add('hidden');
+      pendingEditReviewId = null;
+    }
+
+    function saveEditReview() {
+      if (pendingEditReviewId === null) return;
+
+      const completionData = load(KEYS.completion) || {};
+      const existing = completionData[pendingEditReviewId] || {};
+
+      completionData[pendingEditReviewId] = {
+        ...existing,
+        dateCompleted: document.getElementById('edit-review-date').value,
+        summary:       document.getElementById('edit-review-summary').value.trim(),
+        type:          document.getElementById('edit-review-type').value.trim(),
+        rating:        editSelectedRating,
+      };
+
+      save(KEYS.completion, completionData);
+      closeEditReviewModal();
       renderAll();
     }
 
