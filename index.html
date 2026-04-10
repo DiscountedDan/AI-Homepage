@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Learning Hub</title>
+  <title>Dan's AI Learning Hub</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -41,6 +41,7 @@
     header {
       text-align: center;
       margin-bottom: 2rem;
+      position: relative;
     }
 
     header h1 {
@@ -604,6 +605,186 @@
       display: none !important;
     }
 
+    /* ── Scratchpad Widget ── */
+    #scratchpad-widget {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .scratchpad-collapsed {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .scratchpad-collapsed:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+
+    .scratchpad-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    #scratchpad-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #scratchpad-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 400px;
+      height: 300px;
+      min-width: 260px;
+      min-height: 200px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      resize: both;
+      overflow: hidden;
+    }
+
+    .scratchpad-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .scratchpad-fmt-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      padding: 0.2rem 0.45rem;
+      line-height: 1;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .scratchpad-fmt-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+
+    .scratchpad-toolbar-sep {
+      flex: 1;
+    }
+
+    #scratchpad-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.3rem;
+      font-family: inherit;
+      border-radius: 4px;
+      line-height: 1;
+      transition: color 0.12s;
+    }
+
+    #scratchpad-close:hover {
+      color: var(--text-primary);
+    }
+
+    #scratchpad-content {
+      flex: 1;
+      padding: 0.75rem;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      font-family: inherit;
+      line-height: 1.6;
+      outline: none;
+      overflow-y: auto;
+      min-height: 0;
+      text-align: left;
+    }
+
+    #scratchpad-content h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0.25rem 0;
+    }
+
+    #scratchpad-content font[size="1"] { font-size: 0.7rem; }
+    #scratchpad-content font[size="2"] { font-size: 0.82rem; }
+    #scratchpad-content font[size="3"] { font-size: 1rem; }
+    #scratchpad-content font[size="4"] { font-size: 1.2rem; }
+    #scratchpad-content font[size="5"] { font-size: 1.45rem; font-weight: 600; }
+    #scratchpad-content font[size="6"] { font-size: 1.75rem; font-weight: 700; }
+    #scratchpad-content font[size="7"] { font-size: 2.1rem; font-weight: 700; }
+
+    #scratchpad-content ul {
+      padding-left: 1.25rem;
+      margin: 0.2rem 0;
+    }
+
+    #scratchpad-content li {
+      margin-bottom: 0.15rem;
+    }
+
+    #scratchpad-content:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* ── Note Button (per-card) ── */
+    .note-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .note-btn:hover {
+      color: var(--accent-teal);
+    }
+
+    .note-btn.has-note {
+      color: #FACC15;
+    }
+
+    .note-btn.has-note:hover {
+      color: #fde047;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
@@ -615,7 +796,30 @@
 <body>
 
   <header>
-    <h1>AI <span>Learning Hub</span></h1>
+
+    <!-- ── Scratchpad Widget ── -->
+    <div id="scratchpad-widget">
+      <button id="scratchpad-toggle" class="scratchpad-collapsed" title="Open scratchpad">
+        <span class="scratchpad-icon">&#128221;</span>
+        <span id="scratchpad-label">Scratchpad</span>
+      </button>
+      <div id="scratchpad-panel" class="hidden">
+        <div class="scratchpad-toolbar">
+          <button type="button" class="scratchpad-fmt-btn" data-action="font-up" title="Increase font size">&#8593;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-action="font-down" title="Decrease font size">&#8595;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyLeft" title="Align left"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyCenter" title="Align center"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyRight" title="Align right"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <div class="scratchpad-toolbar-sep"></div>
+          <button type="button" id="scratchpad-close" title="Close">&#10005;</button>
+        </div>
+        <div id="scratchpad-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your notes..."></div>
+      </div>
+    </div>
+
+    <h1>Dan's AI <span>Learning Hub</span></h1>
     <p>Your centralized dashboard for AI resources, courses, and community picks.</p>
     <div class="progress-bar-wrap">
       <div class="progress-label">
@@ -838,6 +1042,24 @@
     </div>
   </div>
 
+  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Card Note Modal                                            -->
+  <!-- ────────────────────────────────────────────────────────── -->
+  <div id="note-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>Card Note</h2>
+      <p id="note-resource-name" class="modal-resource-name"></p>
+      <div class="form-group">
+        <textarea id="note-textarea" placeholder="Add your notes here..." style="min-height: 160px;"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-danger hidden" id="note-delete" style="margin-right: auto;">Delete Note</button>
+        <button type="button" class="btn-cancel" id="note-cancel">Cancel</button>
+        <button type="button" class="btn-primary" id="note-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS & SEED DATA
@@ -852,6 +1074,8 @@
       categories: 'ai_categories',
       types:      'ai_resource_types',
       completion: 'ai_completion_data',
+      scratchpad: 'ai_scratchpad',
+      cardNotes:  'ai_card_notes',
     };
 
     const SEED_RESOURCES = [
@@ -1041,6 +1265,9 @@
         ? `<button class="settings-option" data-action="edit-review">Edit Review</button>`
         : '';
 
+      const cardNotes = load(KEYS.cardNotes) || {};
+      const hasNote   = !!cardNotes[resource.id];
+
       card.innerHTML = `
         <div class="card-top">
           <div class="card-title-wrap">
@@ -1050,6 +1277,7 @@
             <span class="tag">${esc(resource.type)}</span>
           </div>
           <div class="card-actions">
+            <button class="note-btn${hasNote ? ' has-note' : ''}" title="Notes"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2"/></svg></button>
             <div class="gear-wrap">
               <button class="gear-btn" title="Settings">&#9881;</button>
               <div class="settings-menu hidden">
@@ -1090,6 +1318,11 @@
           else if (action === 'edit-review') openEditReviewModal(resource.id);
           else if (action === 'delete')  openDeleteModal(resource.id);
         });
+      });
+
+      card.querySelector('.note-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openNoteModal(resource.id);
       });
 
       return card;
@@ -1446,6 +1679,10 @@
       delete completionData[pendingDeleteId];
       save(KEYS.completion, completionData);
 
+      const cardNotes = load(KEYS.cardNotes) || {};
+      delete cardNotes[pendingDeleteId];
+      save(KEYS.cardNotes, cardNotes);
+
       closeDeleteModal();
       renderAll();
     }
@@ -1525,10 +1762,156 @@
     }
 
     // ═══════════════════════════════════════════════════════════
+    // SCRATCHPAD
+    // ═══════════════════════════════════════════════════════════
+
+    const scratchpadWidget  = document.getElementById('scratchpad-widget');
+    const scratchpadToggle  = document.getElementById('scratchpad-toggle');
+    const scratchpadPanel   = document.getElementById('scratchpad-panel');
+    const scratchpadContent = document.getElementById('scratchpad-content');
+    const scratchpadLabel   = document.getElementById('scratchpad-label');
+    const scratchpadClose   = document.getElementById('scratchpad-close');
+
+    let scratchpadOpen = false;
+
+    function loadScratchpad() {
+      const saved = localStorage.getItem(KEYS.scratchpad);
+      if (saved) {
+        scratchpadContent.innerHTML = saved;
+        updateScratchpadLabel();
+      }
+    }
+
+    function saveScratchpad() {
+      localStorage.setItem(KEYS.scratchpad, scratchpadContent.innerHTML);
+      updateScratchpadLabel();
+    }
+
+    function updateScratchpadLabel() {
+      const text = scratchpadContent.innerText.trim();
+      const firstLine = text.split('\n').find(l => l.trim()) || '';
+      scratchpadLabel.textContent = firstLine.length > 22
+        ? firstLine.slice(0, 22) + '…'
+        : (firstLine || 'Scratchpad');
+    }
+
+    function openScratchpad() {
+      scratchpadPanel.classList.remove('hidden');
+      scratchpadOpen = true;
+      scratchpadContent.focus();
+    }
+
+    function closeScratchpad() {
+      scratchpadPanel.classList.add('hidden');
+      scratchpadOpen = false;
+    }
+
+    scratchpadToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      scratchpadOpen ? closeScratchpad() : openScratchpad();
+    });
+
+    scratchpadClose.addEventListener('click', function (e) {
+      e.stopPropagation();
+      closeScratchpad();
+    });
+
+    // Click outside scratchpad widget to close
+    document.addEventListener('click', function (e) {
+      if (scratchpadOpen && !scratchpadWidget.contains(e.target)) {
+        closeScratchpad();
+      }
+    });
+
+    scratchpadContent.addEventListener('input', saveScratchpad);
+
+    // Formatting toolbar buttons
+    document.querySelectorAll('.scratchpad-fmt-btn').forEach(btn => {
+      btn.addEventListener('mousedown', e => e.preventDefault()); // preserve selection when clicking toolbar
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const action = this.dataset.action;
+        if (action === 'font-up' || action === 'font-down') {
+          const current = parseInt(document.queryCommandValue('fontSize')) || 3;
+          const next = action === 'font-up' ? Math.min(7, current + 1) : Math.max(1, current - 1);
+          document.execCommand('fontSize', false, String(next));
+        } else {
+          const cmd = this.dataset.cmd;
+          const val = this.dataset.val || null;
+          document.execCommand(cmd, false, val);
+        }
+        scratchpadContent.focus();
+        saveScratchpad();
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // CARD NOTES MODAL
+    // ═══════════════════════════════════════════════════════════
+
+    const noteModal    = document.getElementById('note-modal');
+    const noteTextarea = document.getElementById('note-textarea');
+    const noteDelete   = document.getElementById('note-delete');
+    const noteCancel   = document.getElementById('note-cancel');
+    const noteSave     = document.getElementById('note-save');
+
+    let pendingNoteId = null;
+
+    noteCancel.addEventListener('click', closeNoteModal);
+    noteModal.addEventListener('click', e => { if (e.target === noteModal) closeNoteModal(); });
+
+    noteDelete.addEventListener('click', function () {
+      if (pendingNoteId === null) return;
+      const notes = load(KEYS.cardNotes) || {};
+      delete notes[pendingNoteId];
+      save(KEYS.cardNotes, notes);
+      closeNoteModal();
+      renderAll();
+    });
+
+    noteSave.addEventListener('click', function () {
+      if (pendingNoteId === null) return;
+      const text = noteTextarea.value.trim();
+      const notes = load(KEYS.cardNotes) || {};
+      if (text) {
+        notes[pendingNoteId] = text;
+      } else {
+        delete notes[pendingNoteId];
+      }
+      save(KEYS.cardNotes, notes);
+      closeNoteModal();
+      renderAll();
+    });
+
+    function openNoteModal(resourceId) {
+      const resources = load(KEYS.resources) || [];
+      const resource  = resources.find(r => r.id == resourceId);
+      if (!resource) return;
+
+      pendingNoteId = resourceId;
+      const notes       = load(KEYS.cardNotes) || {};
+      const existingNote = notes[resourceId] || '';
+
+      document.getElementById('note-resource-name').textContent = resource.title;
+      noteTextarea.value = existingNote;
+      noteDelete.classList.toggle('hidden', !existingNote);
+
+      closeAllModals();
+      noteModal.classList.remove('hidden');
+      noteTextarea.focus();
+    }
+
+    function closeNoteModal() {
+      noteModal.classList.add('hidden');
+      pendingNoteId = null;
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // BOOT
     // ═══════════════════════════════════════════════════════════
 
     initData();
+    loadScratchpad();
     renderAll();
 
   </script>
