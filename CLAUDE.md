@@ -19,7 +19,7 @@ A personal, locally-hosted homepage that centralizes AI learning resources into 
 
 ---
 
-## Current Architecture (v3a)
+## Current Architecture (v3b)
 
 Single `index.html` — no dependencies, no build step. All resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
 
@@ -28,6 +28,8 @@ Single `index.html` — no dependencies, no build step. All resource cards rende
 - `ai_categories` — array of category name strings (user-extensible)
 - `ai_resource_types` — array of resource type label strings (user-extensible)
 - `ai_completion_data` — object of completion/review records keyed by resource ID
+- `ai_scratchpad` — HTML string content of the global scratchpad widget
+- `ai_card_notes` — object of per-card notes keyed by resource ID
 
 ### Resource Object Shape
 ```json
@@ -58,15 +60,17 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 **Card management** — a gear icon on every card opens a settings menu. Open cards have two actions: Edit Card (title, URL, description, type, category — with inline "Add New..." support on dropdowns) and Delete (removes card and all associated review data). Completed cards have a third action: Edit Review (update date, summary, type, and star rating after submission).
 
+**Global scratchpad** — always-visible widget in the top-left of the header. Collapsed by default; expands to a floating resizable panel. Supports rich text via a formatting toolbar (font size, bold, bullets, alignment). Auto-saves to localStorage on every keystroke.
+
+**Per-card notes** — notepad icon on every card (hollow when empty, solid yellow when a note exists). Opens a modal with a free-text textarea. Notes persist independently of card edits and are removed when a card is deleted.
+
 ---
 
-## Future Features (v3b+)
+## Future Features (v4+)
 - Export completed resources
 - Sort or search within Completed section
 - Recent AI news feed (auto-fetching or manually curated)
 - Search/filter across all resources
-- Notes scratchpad
 - AI tool comparison table
-- Personal header customization (name, etc.)
 - Weather widget
 - Deploy to web
