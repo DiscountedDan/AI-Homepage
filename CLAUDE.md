@@ -19,7 +19,7 @@ A personal, locally-hosted homepage that centralizes AI learning resources into 
 
 ---
 
-## Current Architecture (v2)
+## Current Architecture (v3a)
 
 Single `index.html` — no dependencies, no build step. All resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
 
@@ -56,11 +56,11 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 **Progress bar** — tracks completed/total dynamically in the header; updates when cards are added or completed.
 
+**Card management** — a gear icon on every card opens a settings menu. Open cards have two actions: Edit Card (title, URL, description, type, category — with inline "Add New..." support on dropdowns) and Delete (removes card and all associated review data). Completed cards have a third action: Edit Review (update date, summary, type, and star rating after submission).
+
 ---
 
-## Future Features (v3+)
-- Edit or delete existing resource cards
-- Edit review after submission
+## Future Features (v3b+)
 - Export completed resources
 - Sort or search within Completed section
 - Recent AI news feed (auto-fetching or manually curated)
