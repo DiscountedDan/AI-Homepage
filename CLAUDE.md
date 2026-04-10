@@ -1,5 +1,3 @@
-For v2 requirements, read specs/v2-spec.md before starting.
-
 # CLAUDE.md — AI Learning Homepage
 
 ## Project Overview
@@ -7,73 +5,68 @@ A personal, locally-hosted homepage that centralizes AI learning resources into 
 
 ---
 
-## Goals
-- Centralize ~10 links currently scattered across Google Drive notes
-- Organize links into categorized cards for fast access
-- Build a clean, extensible base for future feature additions
-
----
-
 ## Tech Stack
-- **HTML / CSS / JavaScript** — single file preferred for simplicity
-- **Local storage** — only for persisting checkbox completion state
-- **No backend, no framework, no build step**
-
----
-
-## Content & Structure
-
-### Link Categories (v1)
-Organize links into the following category cards:
-1. **GitHub Repos & Skills** — repos and tools to learn/use
-2. **Anthropic Courses** — official learning resources
-3. **Reddit Posts & Guides** — community tutorials and threads
-
-> Category names/count can be adjusted once actual links are added.
-
-### Each Link Card Should Display:
-- Resource title (clickable link, opens in new tab)
-- Short description (1–2 sentences about what the resource is)
-- Resource type label/tag (e.g., "Course", "Repo", "Guide")
-- **Completion checkbox** — user can check off completed resources; state persists via localStorage so it survives page refresh
+- **HTML / CSS / JavaScript** — single `index.html` file, all CSS and JS embedded
+- **localStorage** — all state and persistence; no backend, no framework, no build step
 
 ---
 
 ## Visual Design
-
-### Theme
 - **Dark mode** — dark grey base background
-- **Color palette** — cool blues and teals as primary accent colors; grey as neutral/secondary
-- **Unified color scheme** — all category cards share the same blue/teal/grey palette (not distinct colors per category)
-
-### Design Goals
-- Aesthetically polished, not just functional
-- Clean card layout with good spacing
-- Designed to scale — new sections should drop in cleanly without redesigning the page
+- **Color palette** — cool blues and teals as accents; grey as neutral/secondary
+- **Unified scheme** — all category cards share the same palette (no per-category colors)
+- **Scalable layout** — new sections drop in cleanly without redesigning the page
 
 ---
 
-## Future Features (Do NOT build in v1)
-- **Recent AI News section** — auto-fetching or manually curated news feed at the top of the page
-- Additional categories as link library grows
-- Possible search/filter across all links
+## Current Architecture (v2)
+
+Single `index.html` — no dependencies, no build step. All resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
+
+### localStorage Keys
+- `ai_resources` — array of all resource objects
+- `ai_categories` — array of category name strings (user-extensible)
+- `ai_resource_types` — array of resource type label strings (user-extensible)
+- `ai_completion_data` — object of completion/review records keyed by resource ID
+
+### Resource Object Shape
+```json
+{ "id": 0, "title": "", "url": "", "description": "", "type": "", "category": "" }
+```
+Seeded resources use numeric IDs 0–11. User-added resources use `Date.now()` as ID.
+
+### Completion Record Shape
+```json
+{ "completed": true, "dateCompleted": "2026-04-07", "summary": "", "type": "", "rating": 3 }
+```
+`rating` is 1–5, or 0 if skipped. All fields except `completed` are empty string/0 if user skipped the review.
 
 ---
 
-## Build Instructions for Claude Code
-1. Build as a **single `index.html` file** with embedded CSS and JS
-2. Hardcode the 10 links — placeholders are fine; Dan will swap in real URLs
-3. Use placeholder content for titles, descriptions, and tags so the structure is clear
-4. Implement localStorage for checkbox state — key by link title or index
-5. Make the design mobile-aware (basic responsive layout)
-6. Leave clear comments in the code marking where to add new links or categories
+## Data Preservation Rule
+Never rename or restructure the localStorage keys or object shapes defined above. Existing user data depends on them. If a new version requires schema changes, migration logic must be written — do not just change the keys.
 
 ---
 
-## What Success Looks Like
-Open `index.html` in a browser and see:
-- A dark, visually sharp homepage
-- 3–4 category sections with ~3 link cards each
-- Each card has title, description, tag, and a completable checkbox
-- Checked boxes persist after page refresh
-- The page looks good enough to actually use daily
+## Features
+
+**Add Resource modal** — triggered by header button. Fields: Title, URL, Description, Resource Type, Category. Both dropdowns support inline "Add New..." to create types/categories on the fly. New entries persist to `ai_categories` / `ai_resource_types` immediately. Form resets after submission.
+
+**Completed section + filter** — checking a card triggers a review modal (Date Completed, Summary, Resource Type, 1–5 stars). Dismissing or skipping still marks the card complete with empty review fields. Completed cards move to a "Completed Resources" section at the bottom. Unchecking returns a card to its original category; review data is preserved. Filter bar (All / Open / Completed) controls visibility.
+
+**Progress bar** — tracks completed/total dynamically in the header; updates when cards are added or completed.
+
+---
+
+## Future Features (v3+)
+- Edit or delete existing resource cards
+- Edit review after submission
+- Export completed resources
+- Sort or search within Completed section
+- Recent AI news feed (auto-fetching or manually curated)
+- Search/filter across all resources
+- Notes scratchpad
+- AI tool comparison table
+- Personal header customization (name, etc.)
+- Weather widget
+- Deploy to web
