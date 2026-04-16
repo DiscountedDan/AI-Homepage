@@ -1,13 +1,23 @@
 # CLAUDE.md — AI Learning Homepage
 
 ## Project Overview
-A personal, locally-hosted homepage that centralizes AI learning resources into a single, visually polished link launcher. No backend. No deployment. Open as an HTML file in any browser.
+A personal homepage that centralizes AI learning resources into a single, visually polished link launcher. Live at `ai-homepage-theta.vercel.app` — auto-deploys on every push to `main`. Can also be opened as a standalone HTML file in any browser.
 
 ---
 
 ## Tech Stack
 - **HTML / CSS / JavaScript** — single `index.html` file, all CSS and JS embedded
-- **localStorage** — all state and persistence; no backend, no framework, no build step
+- **localStorage** — all state and persistence; no framework, no build step
+- **Vercel Serverless Functions** — `/api` folder; each `.js` file becomes a route; API keys stored as Vercel environment variables, never in code
+
+---
+
+## Backend Architecture
+
+- Pattern: `Browser → /api route (Vercel) → external API → response back`
+- API keys stored as Vercel environment variables — never in code or HTML
+- All serverless functions use CommonJS (`module.exports`) format
+- Current routes: `api/hello.js` (dummy health check → `/api/hello`)
 
 ---
 
@@ -72,5 +82,4 @@ Never rename or restructure the localStorage keys or object shapes defined above
 - Recent AI news feed (auto-fetching or manually curated)
 - Search/filter across all resources
 - AI tool comparison table
-- Weather widget
-- Deploy to web
+- Weather widget (v4b — next up)
