@@ -785,17 +785,206 @@
       color: #fde047;
     }
 
+    /* ── Weather Widget ── */
+    #weather-widget {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    .weather-collapsed {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .weather-collapsed:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+
+    #weather-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 220px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      z-index: 150;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .weather-current {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .weather-temp-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+
+    .weather-temp-big {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .weather-icon-big {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .weather-condition {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      text-transform: capitalize;
+    }
+
+    .weather-hilo {
+      color: var(--text-muted);
+      font-size: 0.77rem;
+    }
+
+    .weather-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.6rem 0;
+    }
+
+    .weather-forecast {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .weather-forecast-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .weather-forecast-day {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      width: 32px;
+    }
+
+    .weather-forecast-icon {
+      font-size: 1rem;
+    }
+
+    .weather-forecast-hilo {
+      color: var(--text-muted);
+      font-size: 0.77rem;
+    }
+
+    .weather-city-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .weather-city-input {
+      flex: 1;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-primary);
+      padding: 0.3rem 0.5rem;
+      font-size: 0.78rem;
+      font-family: inherit;
+      min-width: 0;
+    }
+
+    .weather-city-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+
+    .weather-city-submit {
+      background: var(--accent-primary);
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .weather-city-submit:hover {
+      background: #2563eb;
+    }
+
+    .weather-city-clear {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .weather-city-clear:hover {
+      color: var(--text-primary);
+    }
+
+    .weather-error-text {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .weather-set-city {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
       .card-grid { grid-template-columns: 1fr; }
       .modal-box { padding: 1.25rem; }
+      #weather-panel { width: 185px; }
     }
   </style>
 </head>
 <body>
 
   <header>
+
+    <!-- ── Weather Widget ── -->
+    <div id="weather-widget">
+      <button id="weather-toggle" class="weather-collapsed" title="Weather">
+        <span id="weather-compact">—° ⏳</span>
+      </button>
+      <div id="weather-panel" class="hidden"></div>
+    </div>
 
     <!-- ── Scratchpad Widget ── -->
     <div id="scratchpad-widget">
@@ -1907,12 +2096,166 @@
     }
 
     // ═══════════════════════════════════════════════════════════
+    // WEATHER WIDGET
+    // ═══════════════════════════════════════════════════════════
+
+    const WEATHER_ICONS = {
+      '01d': '☀️',  '01n': '🌙',
+      '02d': '🌤️', '02n': '☁️',
+      '03d': '☁️',  '03n': '☁️',
+      '04d': '☁️',  '04n': '☁️',
+      '09d': '🌧️', '09n': '🌧️',
+      '10d': '🌧️', '10n': '🌧️',
+      '11d': '⛈️', '11n': '⛈️',
+      '13d': '❄️',  '13n': '❄️',
+      '50d': '🌫️', '50n': '🌫️',
+    };
+
+    function weatherIcon(code) {
+      return WEATHER_ICONS[code] || '🌡️';
+    }
+
+    const weatherWidget  = document.getElementById('weather-widget');
+    const weatherToggle  = document.getElementById('weather-toggle');
+    const weatherPanel   = document.getElementById('weather-panel');
+    const weatherCompact = document.getElementById('weather-compact');
+    let weatherOpen = false;
+
+    weatherToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      weatherOpen ? closeWeatherPanel() : openWeatherPanel();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (weatherOpen && !weatherWidget.contains(e.target)) closeWeatherPanel();
+    });
+
+    function openWeatherPanel()  { weatherPanel.classList.remove('hidden'); weatherOpen = true; }
+    function closeWeatherPanel() { weatherPanel.classList.add('hidden');    weatherOpen = false; }
+
+    function initWeather() {
+      const savedCity = localStorage.getItem('ai_weather_city');
+      if (savedCity) {
+        fetchWeather({ city: savedCity });
+      } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => fetchWeather({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+          ()  => showWeatherError()
+        );
+      } else {
+        showWeatherError();
+      }
+    }
+
+    async function fetchWeather(params) {
+      try {
+        const query = params.city
+          ? `city=${encodeURIComponent(params.city)}`
+          : `lat=${params.lat}&lon=${params.lon}`;
+        const res = await fetch(`/api/weather?${query}`);
+        if (!res.ok) { showWeatherError(); return; }
+        const data = await res.json();
+        renderWeather(data);
+      } catch {
+        showWeatherError();
+      }
+    }
+
+    function renderWeather(data) {
+      const { current, forecast } = data;
+      const icon = weatherIcon(current.icon);
+
+      weatherCompact.textContent = `${current.temp}° ${icon}`;
+
+      const forecastRows = forecast.map(f => `
+        <div class="weather-forecast-row">
+          <span class="weather-forecast-day">${esc(f.day)}</span>
+          <span class="weather-forecast-icon">${weatherIcon(f.icon)}</span>
+          <span class="weather-forecast-hilo">${f.high}° / ${f.low}°</span>
+        </div>
+      `).join('');
+
+      const savedCity = localStorage.getItem('ai_weather_city');
+      const cityRow = savedCity
+        ? `<div class="weather-city-row">
+             <input type="text" class="weather-city-input" id="weather-city-input" value="${esc(savedCity)}" placeholder="City name">
+             <button type="button" class="weather-city-submit" id="weather-city-submit">&#9654;</button>
+             <button type="button" class="weather-city-clear" id="weather-city-clear" title="Clear, use geolocation">&#10005;</button>
+           </div>`
+        : `<div class="weather-city-row">
+             <input type="text" class="weather-city-input" id="weather-city-input" placeholder="Override city...">
+             <button type="button" class="weather-city-submit" id="weather-city-submit">&#9654;</button>
+           </div>`;
+
+      weatherPanel.innerHTML = `
+        <div class="weather-current">
+          <div class="weather-temp-row">
+            <span class="weather-temp-big">${current.temp}°F</span>
+            <span class="weather-icon-big">${icon}</span>
+          </div>
+          <div class="weather-condition">${esc(current.condition)}</div>
+          <div class="weather-hilo">H:&nbsp;${current.high}° &nbsp; L:&nbsp;${current.low}°</div>
+        </div>
+        <div class="weather-divider"></div>
+        <div class="weather-forecast">${forecastRows}</div>
+        <div class="weather-divider"></div>
+        ${cityRow}
+      `;
+
+      bindWeatherCityHandlers();
+    }
+
+    function showWeatherError() {
+      weatherCompact.textContent = 'Weather unavailable';
+
+      weatherPanel.innerHTML = `
+        <div class="weather-error-text">Weather unavailable</div>
+        <div class="weather-set-city">Enter a city to try again:</div>
+        <div class="weather-city-row">
+          <input type="text" class="weather-city-input" id="weather-city-input" placeholder="City name">
+          <button type="button" class="weather-city-submit" id="weather-city-submit">&#9654;</button>
+        </div>
+      `;
+
+      bindWeatherCityHandlers();
+    }
+
+    function bindWeatherCityHandlers() {
+      const input  = document.getElementById('weather-city-input');
+      const submit = document.getElementById('weather-city-submit');
+      const clear  = document.getElementById('weather-city-clear');
+
+      function submitCity() {
+        const city = input.value.trim();
+        if (!city) return;
+        localStorage.setItem('ai_weather_city', city);
+        weatherCompact.textContent = '—° ⏳';
+        weatherPanel.innerHTML = '';
+        fetchWeather({ city });
+      }
+
+      if (submit) submit.addEventListener('click', submitCity);
+      if (input)  input.addEventListener('keydown', e => { if (e.key === 'Enter') submitCity(); });
+
+      if (clear) {
+        clear.addEventListener('click', function () {
+          localStorage.removeItem('ai_weather_city');
+          weatherCompact.textContent = '—° ⏳';
+          weatherPanel.innerHTML = '';
+          closeWeatherPanel();
+          initWeather();
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // BOOT
     // ═══════════════════════════════════════════════════════════
 
     initData();
     loadScratchpad();
     renderAll();
+    initWeather();
 
   </script>
 
