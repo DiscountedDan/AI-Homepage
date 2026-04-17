@@ -17,3 +17,10 @@ A log of major architectural and design decisions made over the life of this pro
 ## 2026-04-16
 - CommonJS (`module.exports`) chosen over ESM for Vercel serverless functions — safer default for Node runtime
 - `/api` folder established as the Vercel serverless function convention; each file becomes a route
+
+## 2026-04-17
+- CommonJS (`module.exports`) is the established pattern for all Vercel serverless functions in this project
+- API keys are read exclusively from `process.env` — never hardcoded in any file, never committed
+- Native `fetch` used in serverless functions (Node 18+ / Vercel runtime) — no external HTTP packages
+- Weather forecast filtered server-side: 3 daily summaries returned, today excluded, high/low computed from all 3-hour intervals per day
+- `ai_weather_city` localStorage key stores manual city override as a plain string; absent = use geolocation

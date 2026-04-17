@@ -15,9 +15,13 @@ A personal homepage that centralizes AI learning resources into a single, visual
 ## Backend Architecture
 
 - Pattern: `Browser → /api route (Vercel) → external API → response back`
-- API keys stored as Vercel environment variables — never in code or HTML
+- API keys stored as Vercel environment variables — never in code or HTML; always read from `process.env`
 - All serverless functions use CommonJS (`module.exports`) format
-- Current routes: `api/hello.js` (dummy health check → `/api/hello`)
+- Use `Promise.all` for parallel external API calls — never fetch sequentially when calls are independent
+- Error responses always return `{ error: "..." }` JSON with an appropriate HTTP status code (400, 401, 500, 502)
+- Current routes:
+  - `api/hello.js` — dummy health check → `/api/hello`
+  - `api/weather.js` — OpenWeatherMap current conditions + 3-day forecast → `/api/weather`
 
 ---
 
@@ -29,7 +33,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 
 ---
 
-## Current Architecture (v3b)
+## Current Architecture (v4b)
 
 Single `index.html` — no dependencies, no build step. All resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
 
@@ -40,6 +44,7 @@ Single `index.html` — no dependencies, no build step. All resource cards rende
 - `ai_completion_data` — object of completion/review records keyed by resource ID
 - `ai_scratchpad` — HTML string content of the global scratchpad widget
 - `ai_card_notes` — object of per-card notes keyed by resource ID
+- `ai_weather_city` — string, user's manually set city name for the weather widget. Empty/absent = use geolocation. Persists across sessions.
 
 ### Resource Object Shape
 ```json
@@ -76,10 +81,10 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 ---
 
-## Future Features (v4+)
+## Future Features (v5+)
+- V5a: Import/export localStorage data to sync with the live Vercel deployment
+- V5b: AI news feed (auto-fetching or manually curated)
 - Export completed resources
 - Sort or search within Completed section
-- Recent AI news feed (auto-fetching or manually curated)
 - Search/filter across all resources
 - AI tool comparison table
-- Weather widget (v4b — next up)
