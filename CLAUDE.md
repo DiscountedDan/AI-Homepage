@@ -46,6 +46,9 @@ Single `index.html` — no dependencies, no build step. All resource cards rende
 - `ai_card_notes` — object of per-card notes keyed by resource ID
 - `ai_weather_city` — string, user's manually set city name for the weather widget. Empty/absent = use geolocation. Persists across sessions.
 
+### Migration Utility
+- `migrate.html` — standalone export/import tool for migrating localStorage data from the local file to the live Vercel deployment. No dependency on `index.html`. Permanently deployed at `/migrate.html`.
+
 ### Resource Object Shape
 ```json
 { "id": 0, "title": "", "url": "", "description": "", "type": "", "category": "" }
@@ -82,7 +85,6 @@ Never rename or restructure the localStorage keys or object shapes defined above
 ---
 
 ## Future Features (v5+)
-- V5a: Import/export localStorage data to sync with the live Vercel deployment
 - V5b: AI news feed (auto-fetching or manually curated)
 - Export completed resources
 - Sort or search within Completed section
