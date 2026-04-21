@@ -34,3 +34,11 @@ A log of major architectural and design decisions made over the life of this pro
 - `#scratchpad-widget` changed from `position: absolute` to `position: relative` when moved into the nav; the floating panel's `position: absolute; top: calc(100% + 6px)` positioning behavior is unchanged
 - Nav `z-index: 100` with `position: sticky` creates a stacking context, scoping the scratchpad panel's `z-index: 150` locally; for cross-context comparisons the panel participates at root level 100 — modals (z-100, later in DOM) render above it, weather panel (root z-150 via non-stacking header) renders above nav
 - Secondary pages carry only the CSS they actually use: reset, `:root` tokens, `body`, nav, scratchpad, footer, and page-specific styles — homepage-only CSS (cards, modals, weather, filter bar) is not duplicated to other pages
+
+## 2026-04-21 (v5b-2)
+- `rss-parser@^3.13.0` chosen over hand-rolled XML parsing for the news feed — first npm dependency in the project; `package.json` introduced at repo root
+- `Promise.allSettled` used in `api/news.js` (contrast with `Promise.all` in `api/weather.js`) — multi-source aggregation must be fault-tolerant so one failing feed doesn't break the whole response
+- Google AI short-string filter: `contentSnippet` ≤ 30 chars for the `googleai` feed is treated as empty — avoids category labels (e.g. "Generative AI") rendering as article summaries
+- Backend owns all summary sanitization (HTML strip, entity decode, whitespace collapse, truncation); frontend receives clean strings and renders or hides based on truthiness
+- Grouped-by-source layout within Lab Announcements: OpenAI block always first, Google AI block second — guarantees both labs are represented regardless of publishing cadence mismatch
+- `api/news.js` response contract: `items` key is always present (`[]` on error, never omitted) — frontend can safely access `.items.length` without null checks

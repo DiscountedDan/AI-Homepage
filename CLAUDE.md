@@ -9,6 +9,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 - **HTML / CSS / JavaScript** — multi-page, no build step. All CSS and JS embedded per file
 - **localStorage** — all state and persistence; no framework, no build step
 - **Vercel Serverless Functions** — `/api` folder; each `.js` file becomes a route; API keys stored as Vercel environment variables, never in code
+- **npm / rss-parser** — `package.json` at repo root; `rss-parser@^3.13.0` is the project's first (and currently only) npm dependency. Vercel auto-installs on deploy. No build step added.
 
 ---
 
@@ -17,11 +18,12 @@ A personal homepage that centralizes AI learning resources into a single, visual
 - Pattern: `Browser → /api route (Vercel) → external API → response back`
 - API keys stored as Vercel environment variables — never in code or HTML; always read from `process.env`
 - All serverless functions use CommonJS (`module.exports`) format
-- Use `Promise.all` for parallel external API calls — never fetch sequentially when calls are independent
+- Use `Promise.all` for parallel calls to a single external API. Use `Promise.allSettled` for multi-source aggregation — one failing source must not kill the whole response (see `api/news.js`)
 - Error responses always return `{ error: "..." }` JSON with an appropriate HTTP status code (400, 401, 500, 502)
 - Current routes:
   - `api/hello.js` — dummy health check → `/api/hello`
   - `api/weather.js` — OpenWeatherMap current conditions + 3-day forecast → `/api/weather`
+  - `api/news.js` — fetches 3 public RSS feeds (OpenAI, Google Research, TechCrunch AI), parses with `rss-parser`, sanitizes summaries, returns grouped JSON → `/api/news`. No API key required.
 
 ---
 
@@ -39,7 +41,7 @@ Multi-page. No dependencies, no build step. Each page is self-contained. Resourc
 
 ### Page Structure
 - `index.html` — home page; resource card logic, modals, weather widget, progress bar
-- `news.html` — news feed page (shell only in v5b-1; feed content ships in v5b-2)
+- `news.html` — AI news feed; two sections: Lab Announcements (OpenAI + Google AI, 2 items each) and Industry News (TechCrunch, 15 items); skeleton rows on load, fetches `/api/news` on DOMContentLoaded
 - `migrate.html` — localStorage export/import utility; accessed via direct URL only
 
 Nav bar and scratchpad widget are duplicated across pages (intentional — no build step). Weather widget is homepage-only. Body content is wrapped in `.page-wrap`; nav sits outside it as a direct `<body>` child.
@@ -89,10 +91,11 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 **Per-card notes** — notepad icon on every card (hollow when empty, solid yellow when a note exists). Opens a modal with a free-text textarea. Notes persist independently of card edits and are removed when a card is deleted.
 
+**AI news feed** — live two-section feed on `news.html`. Lab Announcements shows the 2 most recent items from OpenAI and Google AI (grouped by source, OpenAI first). Industry News shows 15 most recent TechCrunch AI items. Skeleton rows render immediately; real content replaces them when `/api/news` resolves. Per-source, per-section, and total-failure error states handled. Summaries sanitized and truncated to 150 chars server-side. Cached at Vercel edge for 10 minutes.
+
 ---
 
 ## Future Features (v5+)
-- V5b-2: AI news feed (v5b-1 nav shell complete)
 - Export completed resources
 - Sort or search within Completed section
 - Search/filter across all resources
