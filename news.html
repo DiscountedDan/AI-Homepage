@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dan's AI Learning Hub — News</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-base:        #111418;
+      --bg-card:        #1a1f26;
+      --bg-card-hover:  #1f2630;
+      --border:         #2a3140;
+      --accent-primary: #3b82f6;
+      --text-primary:   #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted:     #64748b;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Top Nav ── */
+    .top-nav {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-link.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* ── Scratchpad Widget ── */
+    #scratchpad-widget {
+      position: relative;
+    }
+
+    .scratchpad-collapsed {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .scratchpad-collapsed:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+
+    .scratchpad-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    #scratchpad-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #scratchpad-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 400px;
+      height: 300px;
+      min-width: 260px;
+      min-height: 200px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      resize: both;
+      overflow: hidden;
+    }
+
+    .scratchpad-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .scratchpad-fmt-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      padding: 0.2rem 0.45rem;
+      line-height: 1;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .scratchpad-fmt-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+
+    .scratchpad-toolbar-sep {
+      flex: 1;
+    }
+
+    #scratchpad-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.3rem;
+      font-family: inherit;
+      border-radius: 4px;
+      line-height: 1;
+      transition: color 0.12s;
+    }
+
+    #scratchpad-close:hover {
+      color: var(--text-primary);
+    }
+
+    #scratchpad-content {
+      flex: 1;
+      padding: 0.75rem;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      font-family: inherit;
+      line-height: 1.6;
+      outline: none;
+      overflow-y: auto;
+      min-height: 0;
+      text-align: left;
+    }
+
+    #scratchpad-content h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0.25rem 0;
+    }
+
+    #scratchpad-content font[size="1"] { font-size: 0.7rem; }
+    #scratchpad-content font[size="2"] { font-size: 0.82rem; }
+    #scratchpad-content font[size="3"] { font-size: 1rem; }
+    #scratchpad-content font[size="4"] { font-size: 1.2rem; }
+    #scratchpad-content font[size="5"] { font-size: 1.45rem; font-weight: 600; }
+    #scratchpad-content font[size="6"] { font-size: 1.75rem; font-weight: 700; }
+    #scratchpad-content font[size="7"] { font-size: 2.1rem; font-weight: 700; }
+
+    #scratchpad-content ul {
+      padding-left: 1.25rem;
+      margin: 0.2rem 0;
+    }
+
+    #scratchpad-content li {
+      margin-bottom: 0.15rem;
+    }
+
+    #scratchpad-content:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* ── News Placeholder ── */
+    .news-main {
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+
+    .news-main h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .news-main p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding-bottom: 4rem;
+    }
+
+    /* ── Hidden utility ── */
+    .hidden {
+      display: none !important;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .top-nav { height: 42px; }
+      .nav-link { font-size: 0.82rem; }
+      .news-main h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+
+    <!-- ── Scratchpad Widget ── -->
+    <div id="scratchpad-widget">
+      <button id="scratchpad-toggle" class="scratchpad-collapsed" title="Open scratchpad">
+        <span class="scratchpad-icon">&#128221;</span>
+        <span id="scratchpad-label">Scratchpad</span>
+      </button>
+      <div id="scratchpad-panel" class="hidden">
+        <div class="scratchpad-toolbar">
+          <button type="button" class="scratchpad-fmt-btn" data-action="font-up" title="Increase font size">&#8593;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-action="font-down" title="Decrease font size">&#8595;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226;</button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyLeft" title="Align left"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyCenter" title="Align center"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyRight" title="Align right"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <div class="scratchpad-toolbar-sep"></div>
+          <button type="button" id="scratchpad-close" title="Close">&#10005;</button>
+        </div>
+        <div id="scratchpad-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your notes..."></div>
+      </div>
+    </div>
+
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="news.html" class="nav-link active">News</a>
+    </div>
+
+  </nav>
+
+  <main class="news-main">
+    <h1>AI News</h1>
+    <p>News feed coming soon.</p>
+  </main>
+
+  <footer>
+    <p>Open locally in any browser &mdash; no server required.</p>
+  </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    // SCRATCHPAD
+    // ═══════════════════════════════════════════════════════════
+
+    const KEYS = { scratchpad: 'ai_scratchpad' };
+
+    const scratchpadWidget  = document.getElementById('scratchpad-widget');
+    const scratchpadToggle  = document.getElementById('scratchpad-toggle');
+    const scratchpadPanel   = document.getElementById('scratchpad-panel');
+    const scratchpadContent = document.getElementById('scratchpad-content');
+    const scratchpadLabel   = document.getElementById('scratchpad-label');
+    const scratchpadClose   = document.getElementById('scratchpad-close');
+
+    let scratchpadOpen = false;
+
+    function loadScratchpad() {
+      const saved = localStorage.getItem(KEYS.scratchpad);
+      if (saved) {
+        scratchpadContent.innerHTML = saved;
+        updateScratchpadLabel();
+      }
+    }
+
+    function saveScratchpad() {
+      localStorage.setItem(KEYS.scratchpad, scratchpadContent.innerHTML);
+      updateScratchpadLabel();
+    }
+
+    function updateScratchpadLabel() {
+      const text = scratchpadContent.innerText.trim();
+      const firstLine = text.split('\n').find(l => l.trim()) || '';
+      scratchpadLabel.textContent = firstLine.length > 22
+        ? firstLine.slice(0, 22) + '…'
+        : (firstLine || 'Scratchpad');
+    }
+
+    function openScratchpad() {
+      scratchpadPanel.classList.remove('hidden');
+      scratchpadOpen = true;
+      scratchpadContent.focus();
+    }
+
+    function closeScratchpad() {
+      scratchpadPanel.classList.add('hidden');
+      scratchpadOpen = false;
+    }
+
+    scratchpadToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      scratchpadOpen ? closeScratchpad() : openScratchpad();
+    });
+
+    scratchpadClose.addEventListener('click', function (e) {
+      e.stopPropagation();
+      closeScratchpad();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (scratchpadOpen && !scratchpadWidget.contains(e.target)) {
+        closeScratchpad();
+      }
+    });
+
+    scratchpadContent.addEventListener('input', saveScratchpad);
+
+    document.querySelectorAll('.scratchpad-fmt-btn').forEach(btn => {
+      btn.addEventListener('mousedown', e => e.preventDefault());
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const action = this.dataset.action;
+        if (action === 'font-up' || action === 'font-down') {
+          const current = parseInt(document.queryCommandValue('fontSize')) || 3;
+          const next = action === 'font-up' ? Math.min(7, current + 1) : Math.max(1, current - 1);
+          document.execCommand('fontSize', false, String(next));
+        } else {
+          const cmd = this.dataset.cmd;
+          const val = this.dataset.val || null;
+          document.execCommand(cmd, false, val);
+        }
+        scratchpadContent.focus();
+        saveScratchpad();
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════════════════
+
+    loadScratchpad();
+
+  </script>
+
+</body>
+</html>

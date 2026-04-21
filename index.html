@@ -34,7 +34,51 @@
       color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Page Wrap ── */
+    .page-wrap {
       padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* ── Top Nav ── */
+    .top-nav {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-link.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent-primary);
     }
 
     /* ── Header ── */
@@ -607,9 +651,7 @@
 
     /* ── Scratchpad Widget ── */
     #scratchpad-widget {
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
     }
 
     .scratchpad-collapsed {
@@ -967,6 +1009,8 @@
 
     /* ── Responsive ── */
     @media (max-width: 600px) {
+      .top-nav { height: 42px; }
+      .nav-link { font-size: 0.82rem; }
       header h1 { font-size: 1.5rem; }
       .card-grid { grid-template-columns: 1fr; }
       .modal-box { padding: 1.25rem; }
@@ -976,15 +1020,7 @@
 </head>
 <body>
 
-  <header>
-
-    <!-- ── Weather Widget ── -->
-    <div id="weather-widget">
-      <button id="weather-toggle" class="weather-collapsed" title="Weather">
-        <span id="weather-compact">—° ⏳</span>
-      </button>
-      <div id="weather-panel" class="hidden"></div>
-    </div>
+  <nav class="top-nav">
 
     <!-- ── Scratchpad Widget ── -->
     <div id="scratchpad-widget">
@@ -1006,6 +1042,25 @@
         </div>
         <div id="scratchpad-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your notes..."></div>
       </div>
+    </div>
+
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="news.html" class="nav-link">News</a>
+    </div>
+
+  </nav>
+
+  <div class="page-wrap">
+
+  <header>
+
+    <!-- ── Weather Widget ── -->
+    <div id="weather-widget">
+      <button id="weather-toggle" class="weather-collapsed" title="Weather">
+        <span id="weather-compact">—° ⏳</span>
+      </button>
+      <div id="weather-panel" class="hidden"></div>
     </div>
 
     <h1>Dan's AI <span>Learning Hub</span></h1>
@@ -1037,6 +1092,8 @@
   <footer>
     <p>Open locally in any browser &mdash; no server required.</p>
   </footer>
+
+  </div><!-- /.page-wrap -->
 
   <!-- ────────────────────────────────────────────────────────── -->
   <!-- Add Resource Modal                                         -->
