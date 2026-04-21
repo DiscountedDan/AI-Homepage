@@ -20,6 +20,8 @@
       --text-primary:   #e2e8f0;
       --text-secondary: #94a3b8;
       --text-muted:     #64748b;
+      --tag-bg:         #0f2744;
+      --tag-text:       #60a5fa;
     }
 
     body {
@@ -219,23 +221,149 @@
       pointer-events: none;
     }
 
-    /* ── News Placeholder ── */
+    /* ── News Feed ── */
     .news-main {
-      padding: 4rem 1.5rem;
-      text-align: center;
+      padding: 2rem 1.5rem 4rem;
+      max-width: 780px;
     }
 
-    .news-main h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
-      margin-bottom: 0.75rem;
+    .feed-section {
+      margin-bottom: 2.5rem;
     }
 
-    .news-main p {
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .category-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .category-header .divider {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2em 0.55em;
+      border-radius: 4px;
+      border: 1px solid #1e3a5f;
+      width: fit-content;
+    }
+
+    .news-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.5rem;
+      transition: background 0.15s;
+    }
+
+    .news-item:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .news-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .news-item-date {
       color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .news-item-title {
+      color: var(--text-primary);
       font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0.3rem;
+    }
+
+    .news-item-summary {
+      color: var(--text-secondary);
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
+
+    .skeleton-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.5rem;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .skeleton-badge {
+      height: 18px;
+      width: 60px;
+      border-radius: 4px;
+      background: var(--border);
+      margin-bottom: 0.4rem;
+    }
+
+    .skeleton-title {
+      height: 16px;
+      width: 75%;
+      border-radius: 3px;
+      background: var(--border);
+      margin-bottom: 0.35rem;
+    }
+
+    .skeleton-date {
+      height: 12px;
+      width: 50px;
+      border-radius: 3px;
+      background: var(--border);
+      margin-bottom: 0.35rem;
+    }
+
+    .skeleton-text {
+      height: 12px;
+      width: 90%;
+      border-radius: 3px;
+      background: var(--border);
+    }
+
+    .feed-error {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      padding: 1rem 0;
+    }
+
+    .feed-unavailable {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      padding: 3rem 0;
     }
 
     /* ── Footer ── */
@@ -256,7 +384,7 @@
     @media (max-width: 600px) {
       .top-nav { height: 42px; }
       .nav-link { font-size: 0.82rem; }
-      .news-main h1 { font-size: 1.5rem; }
+      .news-main { padding: 1.5rem 1rem 3rem; }
     }
   </style>
 </head>
@@ -293,9 +421,49 @@
 
   </nav>
 
-  <main class="news-main">
-    <h1>AI News</h1>
-    <p>News feed coming soon.</p>
+  <main class="news-main" id="feed-area">
+
+    <!-- Section 1: Lab Announcements -->
+    <section class="feed-section" id="section-lab">
+      <div class="category-header">
+        <h2>Lab Announcements</h2>
+        <div class="divider"></div>
+      </div>
+      <div id="openai-items">
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+      </div>
+      <div id="googleai-items">
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+      </div>
+    </section>
+
+    <!-- Section 2: Industry News -->
+    <section class="feed-section" id="section-industry">
+      <div class="category-header">
+        <h2>Industry News</h2>
+        <div class="divider"></div>
+      </div>
+      <div id="techcrunch-items">
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+        <div class="skeleton-row"><div class="skeleton-badge"></div><div class="skeleton-title"></div><div class="skeleton-date"></div><div class="skeleton-text"></div></div>
+      </div>
+    </section>
+
   </main>
 
   <footer>
@@ -386,6 +554,102 @@
         saveScratchpad();
       });
     });
+
+    // ═══════════════════════════════════════════════════════════
+    // NEWS FEED
+    // ═══════════════════════════════════════════════════════════
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatDate(pubDateStr) {
+      const date = new Date(pubDateStr);
+      const now = new Date();
+      const diffMs  = now - date;
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffHrs = Math.floor(diffMs / 3600000);
+      if (diffMin < 1)  return 'just now';
+      if (diffMin < 60) return diffMin + ' min ago';
+      if (diffHrs < 24) return diffHrs + ' hours ago';
+      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const m = MONTHS[date.getUTCMonth()];
+      const d = date.getUTCDate();
+      const y = date.getUTCFullYear();
+      return y === now.getUTCFullYear() ? m + ' ' + d : m + ' ' + d + ', ' + y;
+    }
+
+    function renderItems(items, label) {
+      const frag = document.createDocumentFragment();
+      items.forEach(function (item) {
+        const a = document.createElement('a');
+        a.className = 'news-item';
+        a.href = item.link;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.innerHTML =
+          '<div class="news-item-meta">' +
+            '<span class="tag">' + label + '</span>' +
+            '<span class="news-item-date">' + formatDate(item.pubDate) + '</span>' +
+          '</div>' +
+          '<div class="news-item-title">' + esc(item.title) + '</div>' +
+          (item.summary ? '<div class="news-item-summary">' + esc(item.summary) + '</div>' : '');
+        frag.appendChild(a);
+      });
+      return frag;
+    }
+
+    async function loadNews() {
+      var feedArea      = document.getElementById('feed-area');
+      var openaiEl      = document.getElementById('openai-items');
+      var googleaiEl    = document.getElementById('googleai-items');
+      var techcrunchEl  = document.getElementById('techcrunch-items');
+
+      try {
+        var res = await fetch('/api/news');
+        if (!res.ok) throw new Error('non-200');
+        var data = await res.json();
+
+        var lab = data.labAnnouncements;
+        var ind = data.industryNews;
+
+        if (lab.openai.status === 'ok' && lab.openai.items.length) {
+          openaiEl.innerHTML = '';
+          openaiEl.appendChild(renderItems(lab.openai.items, 'OpenAI'));
+        } else {
+          openaiEl.innerHTML = '<p class="feed-error">Could not load OpenAI items.</p>';
+        }
+
+        if (lab.googleai.status === 'ok' && lab.googleai.items.length) {
+          googleaiEl.innerHTML = '';
+          googleaiEl.appendChild(renderItems(lab.googleai.items, 'Google AI'));
+        } else {
+          googleaiEl.innerHTML = '<p class="feed-error">Could not load Google AI items.</p>';
+        }
+
+        if (ind.techcrunch.status === 'ok' && ind.techcrunch.items.length) {
+          techcrunchEl.innerHTML = '';
+          techcrunchEl.appendChild(renderItems(ind.techcrunch.items, 'TechCrunch'));
+        } else {
+          techcrunchEl.innerHTML = '<p class="feed-error">Could not load Industry News.</p>';
+        }
+
+        var allFailed =
+          lab.openai.status   === 'error' &&
+          lab.googleai.status === 'error' &&
+          ind.techcrunch.status === 'error';
+        if (allFailed) throw new Error('all-failed');
+
+      } catch {
+        feedArea.innerHTML = '<p class="feed-unavailable">News unavailable.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNews);
 
     // ═══════════════════════════════════════════════════════════
     // BOOT
