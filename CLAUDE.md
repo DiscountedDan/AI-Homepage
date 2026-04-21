@@ -6,7 +6,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 ---
 
 ## Tech Stack
-- **HTML / CSS / JavaScript** — single `index.html` file, all CSS and JS embedded
+- **HTML / CSS / JavaScript** — multi-page, no build step. All CSS and JS embedded per file
 - **localStorage** — all state and persistence; no framework, no build step
 - **Vercel Serverless Functions** — `/api` folder; each `.js` file becomes a route; API keys stored as Vercel environment variables, never in code
 
@@ -33,9 +33,16 @@ A personal homepage that centralizes AI learning resources into a single, visual
 
 ---
 
-## Current Architecture (v4b)
+## Current Architecture (v5b)
 
-Single `index.html` — no dependencies, no build step. All resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
+Multi-page. No dependencies, no build step. Each page is self-contained. Resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
+
+### Page Structure
+- `index.html` — home page; resource card logic, modals, weather widget, progress bar
+- `news.html` — news feed page (shell only in v5b-1; feed content ships in v5b-2)
+- `migrate.html` — localStorage export/import utility; accessed via direct URL only
+
+Nav bar and scratchpad widget are duplicated across pages (intentional — no build step). Weather widget is homepage-only. Body content is wrapped in `.page-wrap`; nav sits outside it as a direct `<body>` child.
 
 ### localStorage Keys
 - `ai_resources` — array of all resource objects
@@ -85,7 +92,7 @@ Never rename or restructure the localStorage keys or object shapes defined above
 ---
 
 ## Future Features (v5+)
-- V5b: AI news feed (auto-fetching or manually curated)
+- V5b-2: AI news feed (v5b-1 nav shell complete)
 - Export completed resources
 - Sort or search within Completed section
 - Search/filter across all resources

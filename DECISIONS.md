@@ -24,3 +24,13 @@ A log of major architectural and design decisions made over the life of this pro
 - Native `fetch` used in serverless functions (Node 18+ / Vercel runtime) — no external HTTP packages
 - Weather forecast filtered server-side: 3 daily summaries returned, today excluded, high/low computed from all 3-hour intervals per day
 - `ai_weather_city` localStorage key stores manual city override as a plain string; absent = use geolocation
+
+## 2026-04-21
+- Multi-page architecture uses separate HTML files with full-page loads and standard `<a>` navigation — no SPA routing, no hash routing
+- Nav bar and scratchpad widget code is intentionally duplicated between `index.html` and `news.html` — accepted tradeoff to avoid a build step or runtime injection; future edits must touch both files
+- Weather widget is homepage-only and is not duplicated to the nav or any other page
+- `.page-wrap` wrapper div carries the body content padding, allowing the nav to be a direct child of `body` and span full viewport width without negative margins
+- Active page indicator in the nav is hardcoded per file (not JS-detected), consistent with the per-page duplication approach
+- `#scratchpad-widget` changed from `position: absolute` to `position: relative` when moved into the nav; the floating panel's `position: absolute; top: calc(100% + 6px)` positioning behavior is unchanged
+- Nav `z-index: 100` with `position: sticky` creates a stacking context, scoping the scratchpad panel's `z-index: 150` locally; for cross-context comparisons the panel participates at root level 100 — modals (z-100, later in DOM) render above it, weather panel (root z-150 via non-stacking header) renders above nav
+- Secondary pages carry only the CSS they actually use: reset, `:root` tokens, `body`, nav, scratchpad, footer, and page-specific styles — homepage-only CSS (cards, modals, weather, filter bar) is not duplicated to other pages
