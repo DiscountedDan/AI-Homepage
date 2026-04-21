@@ -258,7 +258,9 @@
       const data = {};
       KEYS.forEach(key => {
         const val = localStorage.getItem(key);
-        if (val !== null) data[key] = val;
+        if (val !== null) {
+          try { data[key] = JSON.parse(val); } catch { data[key] = val; }
+        }
       });
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -336,7 +338,8 @@
       const statusEl = document.getElementById('importStatus');
       KEYS.forEach(key => {
         if (parsedImportData[key] !== undefined) {
-          localStorage.setItem(key, parsedImportData[key]);
+          const val = parsedImportData[key];
+          localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
         }
       });
       parsedImportData = null;
