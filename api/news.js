@@ -1,5 +1,5 @@
 const Parser = require('rss-parser');
-const parser = new Parser();
+const parser = new Parser({ timeout: 5000 });
 
 const FEEDS = [
   { id: 'openai',     section: 'labAnnouncements', limit: 2,  url: 'https://openai.com/news/rss.xml' },
@@ -11,21 +11,31 @@ function sanitizeSummary(raw, feedId) {
   if (!raw) return '';
   let text = raw.replace(/<[^>]*>/g, '');
   text = text
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
   text = text.trim().replace(/\s+/g, ' ');
   if (feedId === 'googleai' && text.length <= 30) return '';
   if (text.length > 150) return text.slice(0, 149) + '…';
   return text;
 }
 
+function isValidLink(link) {
+  try {
+    const url = new URL(link);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function processItems(feed, feedId, limit) {
   return feed.items
     .slice()
     .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+    .filter(item => isValidLink(item.link))
     .slice(0, limit)
     .map(item => {
       const raw = item.contentSnippet || item.content || '';

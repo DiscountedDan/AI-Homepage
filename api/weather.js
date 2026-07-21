@@ -6,6 +6,21 @@ module.exports = async function handler(req, res) {
 
   const { lat, lon, city } = req.query;
 
+  if (city) {
+    if (!city.trim() || city.length > 100) {
+      return res.status(400).json({ error: 'Invalid parameters' });
+    }
+  } else if (lat && lon) {
+    const latNum = parseFloat(lat);
+    const lonNum = parseFloat(lon);
+    if (
+      !Number.isFinite(latNum) || latNum < -90 || latNum > 90 ||
+      !Number.isFinite(lonNum) || lonNum < -180 || lonNum > 180
+    ) {
+      return res.status(400).json({ error: 'Invalid parameters' });
+    }
+  }
+
   let locationParam;
   if (city) {
     locationParam = `q=${encodeURIComponent(city)}`;
@@ -66,6 +81,7 @@ module.exports = async function handler(req, res) {
       low:  Math.round(Math.min(...data.temps)),
     }));
 
+    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=60');
     res.status(200).json({ current, forecast });
   } catch {
     res.status(500).json({ error: 'Internal server error' });

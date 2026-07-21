@@ -21,9 +21,8 @@ A personal homepage that centralizes AI learning resources into a single, visual
 - Use `Promise.all` for parallel calls to a single external API. Use `Promise.allSettled` for multi-source aggregation — one failing source must not kill the whole response (see `api/news.js`)
 - Error responses always return `{ error: "..." }` JSON with an appropriate HTTP status code (400, 401, 500, 502)
 - Current routes:
-  - `api/hello.js` — dummy health check → `/api/hello`
-  - `api/weather.js` — OpenWeatherMap current conditions + 3-day forecast → `/api/weather`
-  - `api/news.js` — fetches 3 public RSS feeds (OpenAI, Google Research, TechCrunch AI), parses with `rss-parser`, sanitizes summaries, returns grouped JSON → `/api/news`. No API key required.
+  - `api/weather.js` — OpenWeatherMap current conditions + 3-day forecast → `/api/weather`. Validates `lat`/`lon`/`city` input (400 on invalid); responses cached at the edge (`s-maxage=600, stale-while-revalidate=60`) on success.
+  - `api/news.js` — fetches 3 public RSS feeds (OpenAI, Google Research, TechCrunch AI), parses with `rss-parser` (5s timeout), sanitizes summaries, drops items with non-http(s) links, returns grouped JSON → `/api/news`. No API key required.
 
 ---
 

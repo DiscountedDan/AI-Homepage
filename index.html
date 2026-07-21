@@ -2228,7 +2228,7 @@
         <div class="weather-forecast-row">
           <span class="weather-forecast-day">${esc(f.day)}</span>
           <span class="weather-forecast-icon">${weatherIcon(f.icon)}</span>
-          <span class="weather-forecast-hilo">${f.high}° / ${f.low}°</span>
+          <span class="weather-forecast-hilo">${esc(f.high)}° / ${esc(f.low)}°</span>
         </div>
       `).join('');
 
@@ -2247,11 +2247,11 @@
       weatherPanel.innerHTML = `
         <div class="weather-current">
           <div class="weather-temp-row">
-            <span class="weather-temp-big">${current.temp}°F</span>
+            <span class="weather-temp-big">${esc(current.temp)}°F</span>
             <span class="weather-icon-big">${icon}</span>
           </div>
           <div class="weather-condition">${esc(current.condition)}</div>
-          <div class="weather-hilo">H:&nbsp;${current.high}° &nbsp; L:&nbsp;${current.low}°</div>
+          <div class="weather-hilo">H:&nbsp;${esc(current.high)}° &nbsp; L:&nbsp;${esc(current.low)}°</div>
         </div>
         <div class="weather-divider"></div>
         <div class="weather-forecast">${forecastRows}</div>

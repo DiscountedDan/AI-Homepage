@@ -253,6 +253,61 @@
       el.style.display = 'block';
     }
 
+    // ── Import validation & sanitization ───────────────────────
+    function isPlainObject(val) {
+      return typeof val === 'object' && val !== null && !Array.isArray(val);
+    }
+
+    function isStringArray(val) {
+      return Array.isArray(val) && val.every(v => typeof v === 'string');
+    }
+
+    function validateImportShape(data) {
+      if ('ai_resources' in data) {
+        const val = data.ai_resources;
+        const ok = Array.isArray(val) && val.every(item =>
+          isPlainObject(item) &&
+          (typeof item.id === 'string' || typeof item.id === 'number') &&
+          typeof item.title === 'string' &&
+          typeof item.url === 'string' &&
+          typeof item.description === 'string' &&
+          typeof item.type === 'string' &&
+          typeof item.category === 'string'
+        );
+        if (!ok) return 'ai_resources';
+      }
+      if ('ai_categories' in data && !isStringArray(data.ai_categories)) return 'ai_categories';
+      if ('ai_resource_types' in data && !isStringArray(data.ai_resource_types)) return 'ai_resource_types';
+      if ('ai_completion_data' in data && !isPlainObject(data.ai_completion_data)) return 'ai_completion_data';
+      if ('ai_card_notes' in data && !isPlainObject(data.ai_card_notes)) return 'ai_card_notes';
+      if ('ai_scratchpad' in data && typeof data.ai_scratchpad !== 'string') return 'ai_scratchpad';
+      if ('ai_weather_city' in data && typeof data.ai_weather_city !== 'string') return 'ai_weather_city';
+      return null;
+    }
+
+    function sanitizeScratchpadHtml(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('script, iframe, object, embed, link, style, meta, form').forEach(el => el.remove());
+
+      doc.body.querySelectorAll('*').forEach(el => {
+        [...el.attributes].forEach(attr => {
+          const name = attr.name.toLowerCase();
+          if (name.startsWith('on')) {
+            el.removeAttribute(attr.name);
+            return;
+          }
+          if (name === 'href' || name === 'src' || name === 'srcset') {
+            const value = attr.value.trim().toLowerCase();
+            if (!value.startsWith('http:') && !value.startsWith('https:') && !value.startsWith('#')) {
+              el.removeAttribute(attr.name);
+            }
+          }
+        });
+      });
+
+      return doc.body.innerHTML;
+    }
+
     // ── Export ──────────────────────────────────────────────
     document.getElementById('exportBtn').addEventListener('click', () => {
       const data = {};
@@ -312,6 +367,12 @@
           return;
         }
 
+        const invalidKey = validateImportShape(data);
+        if (invalidKey) {
+          showStatus(statusEl, 'error', `Backup file has an invalid "${invalidKey}" value — import cancelled.`);
+          return;
+        }
+
         parsedImportData = data;
 
         const hasExisting = KEYS.some(k => localStorage.getItem(k) !== null);
@@ -338,7 +399,10 @@
       const statusEl = document.getElementById('importStatus');
       KEYS.forEach(key => {
         if (parsedImportData[key] !== undefined) {
-          const val = parsedImportData[key];
+          let val = parsedImportData[key];
+          if (key === 'ai_scratchpad' && typeof val === 'string') {
+            val = sanitizeScratchpadHtml(val);
+          }
           localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
         }
       });

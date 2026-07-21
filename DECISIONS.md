@@ -42,3 +42,10 @@ A log of major architectural and design decisions made over the life of this pro
 - Backend owns all summary sanitization (HTML strip, entity decode, whitespace collapse, truncation); frontend receives clean strings and renders or hides based on truthiness
 - Grouped-by-source layout within Lab Announcements: OpenAI block always first, Google AI block second — guarantees both labs are represented regardless of publishing cadence mismatch
 - `api/news.js` response contract: `items` key is always present (`[]` on error, never omitted) — frontend can safely access `.items.length` without null checks
+
+## 2026-07-21 (v5c — audit fixes)
+- RSS parser timeout set to 5s (not Vercel's ~10s ceiling) — leaves headroom for parsing/response time after the network call returns, so the function itself never gets killed mid-response
+- RSS link validation done server-side in `api/news.js`, not the frontend — keeps the API response contract itself trustworthy (every link in the JSON is guaranteed safe) rather than relying on every consumer to re-validate
+- `migrate.html` import validation is all-or-nothing: any single invalid key aborts before any `localStorage.setItem` call runs — prevents a half-imported, internally inconsistent state that's harder to diagnose than a clean failure
+- CSP / security headers deferred as a separate discussion item — a meaningful `Content-Security-Policy` conflicts with the current inline-script, no-build-step architecture and needs a dedicated design pass, not a quick fix
+- `npm install` run for the first time locally to generate `package-lock.json` (previously only `package.json` existed; Vercel had been installing fresh at deploy time) — lockfile now committed for reproducible installs and `npm audit` support; `node_modules/` added to `.gitignore`
