@@ -9,7 +9,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 - **HTML / CSS / JavaScript** — multi-page, no build step. All CSS and JS embedded per file
 - **localStorage** — all state and persistence; no framework, no build step
 - **Vercel Serverless Functions** — `/api` folder; each `.js` file becomes a route; API keys stored as Vercel environment variables, never in code
-- **npm / rss-parser** — `package.json` at repo root; `rss-parser@^3.13.0` is the project's first (and currently only) npm dependency. Vercel auto-installs on deploy. No build step added.
+- **npm / rss-parser** — `package.json` + `package-lock.json` at repo root; `rss-parser@^3.13.0` is the project's first (and currently only) npm dependency. Vercel auto-installs on deploy. No build step added.
 
 ---
 
@@ -34,7 +34,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 
 ---
 
-## Current Architecture (v5b)
+## Current Architecture (v5c)
 
 Multi-page. No dependencies, no build step. Each page is self-contained. Resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
 
@@ -55,7 +55,7 @@ Nav bar and scratchpad widget are duplicated across pages (intentional — no bu
 - `ai_weather_city` — string, user's manually set city name for the weather widget. Empty/absent = use geolocation. Persists across sessions.
 
 ### Migration Utility
-- `migrate.html` — standalone export/import tool for migrating localStorage data from the local file to the live Vercel deployment. No dependency on `index.html`. Permanently deployed at `/migrate.html`.
+- `migrate.html` — standalone export/import tool for migrating localStorage data from the local file to the live Vercel deployment. No dependency on `index.html`. Permanently deployed at `/migrate.html`. Import validates the shape of every known key before writing anything (all-or-nothing — a bad key aborts the whole import with an error naming it) and sanitizes `ai_scratchpad` HTML (strips `script`/`iframe`/etc., event-handler attributes, and non-http(s)/`#` `href`/`src`/`srcset` values) before it's written to localStorage.
 
 ### Resource Object Shape
 ```json
@@ -91,11 +91,3 @@ Never rename or restructure the localStorage keys or object shapes defined above
 **Per-card notes** — notepad icon on every card (hollow when empty, solid yellow when a note exists). Opens a modal with a free-text textarea. Notes persist independently of card edits and are removed when a card is deleted.
 
 **AI news feed** — live two-section feed on `news.html`. Lab Announcements shows the 2 most recent items from OpenAI and Google AI (grouped by source, OpenAI first). Industry News shows 15 most recent TechCrunch AI items. Skeleton rows render immediately; real content replaces them when `/api/news` resolves. Per-source, per-section, and total-failure error states handled. Summaries sanitized and truncated to 150 chars server-side. Cached at Vercel edge for 10 minutes.
-
----
-
-## Future Features (v5+)
-- Export completed resources
-- Sort or search within Completed section
-- Search/filter across all resources
-- AI tool comparison table
