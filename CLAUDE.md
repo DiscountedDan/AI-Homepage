@@ -27,10 +27,10 @@ A personal homepage that centralizes AI learning resources into a single, visual
 ---
 
 ## Visual Design
-- **Dark mode** — dark grey base background
-- **Color palette** — cool blues and teals as accents; grey as neutral/secondary
-- **Unified scheme** — all category cards share the same palette (no per-category colors)
-- **Scalable layout** — new sections drop in cleanly without redesigning the page
+- **Light mode** (V6) — light grey-blue page background; content sits in a centered `.app` card container. Design tokens are fixed light-mode values from the Claude Design export, baked into CSS custom properties; no settings UI. (v1–v5 were dark mode.)
+- **Color palette** — three accents only: green `oklch(0.48 0.15 130)` (primary/interactive), red-orange `oklch(0.55 0.18 25)`, gold `oklch(0.62 0.15 70)`; neutral greys for text and tags
+- **Unified scheme** — no per-category colors; Links type-tags and recipe source tags are neutral gray
+- **Scalable layout** — new sections/tabs drop in cleanly without redesigning the page
 
 ---
 
@@ -94,11 +94,11 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 **Completed section + filter** — checking a card triggers a review modal (Date Completed, Summary, Resource Type, 1–5 stars). Dismissing or skipping still marks the card complete with empty review fields. Completed cards move to a "Completed Resources" section at the bottom. Unchecking returns a card to its original category; review data is preserved. Filter bar (All / Open / Completed) controls visibility.
 
-**Progress bar** — tracks completed/total dynamically in the header; updates when cards are added or completed.
+**Reviewed count** — the Links tab shows a live "X of Y reviewed" count (green mono line under the header); updates when cards are added or completed. Replaced the v5 header progress bar.
 
 **Card management** — a gear icon on every card opens a settings menu. Open cards have two actions: Edit Card (title, URL, description, type, category — with inline "Add New..." support on dropdowns) and Delete (removes card and all associated review data). Completed cards have a third action: Edit Review (update date, summary, type, and star rating after submission).
 
-**Global scratchpad** — always-visible widget in the top-left of the header. Collapsed by default; expands to a floating resizable panel. Supports rich text via a formatting toolbar (font size, bold, bullets, alignment). Auto-saves to localStorage on every keystroke.
+**Global scratchpad** — always-visible pill in the nav (next to the brand mark), present on every tab. Collapsed by default; expands to a floating resizable panel. Supports rich text via a formatting toolbar (font size, bold, bullets, alignment). Auto-saves to localStorage on every keystroke.
 
 **Per-card notes** — notepad icon on every card (hollow when empty, solid yellow when a note exists). Opens a modal with a free-text textarea. Notes persist independently of card edits and are removed when a card is deleted.
 

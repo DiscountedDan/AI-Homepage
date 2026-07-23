@@ -26,6 +26,8 @@ A log of major architectural and design decisions made over the life of this pro
 - `ai_weather_city` localStorage key stores manual city override as a plain string; absent = use geolocation
 
 ## 2026-04-21
+> **Superseded by 2026-07-23 (v6).** The multi-page architecture below was replaced by the single-file four-tab shell. Entries kept for historical record; the positioning/stacking notes (`#scratchpad-widget`, floating panel) still describe current behavior.
+
 - Multi-page architecture uses separate HTML files with full-page loads and standard `<a>` navigation — no SPA routing, no hash routing
 - Nav bar and scratchpad widget code is intentionally duplicated between `index.html` and `news.html` — accepted tradeoff to avoid a build step or runtime injection; future edits must touch both files
 - Weather widget is homepage-only and is not duplicated to the nav or any other page
