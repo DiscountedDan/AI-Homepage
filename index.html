@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dan's AI Learning Hub</title>
+
+  <!-- ── Fonts: Google Fonts + system fallback (degrades gracefully offline) ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -11,657 +17,164 @@
       padding: 0;
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       DESIGN TOKENS — light mode, fixed (from Claude Design export)
+       ═══════════════════════════════════════════════════════════ */
     :root {
-      --bg-base:        #111418;
-      --bg-card:        #1a1f26;
-      --bg-card-hover:  #1f2630;
-      --border:         #2a3140;
-      --accent-primary: #3b82f6;
-      --accent-teal:    #14b8a6;
-      --accent-muted:   #1e3a5f;
-      --text-primary:   #e2e8f0;
-      --text-secondary: #94a3b8;
-      --text-muted:     #64748b;
-      --check-bg:       #0f2744;
-      --check-border:   #3b82f6;
-      --check-done:     #14b8a6;
-      --tag-bg:         #0f2744;
-      --tag-text:       #60a5fa;
+      /* base */
+      --page-bg:        oklch(0.97 0.005 260);
+      --card-bg:        oklch(0.99 0.003 260);
+      --card-border:    oklch(0.88 0.01 260);
+      --hairline:       oklch(0.92 0.008 260);
+      --text-primary:   oklch(0.18 0.01 260);
+      --text-strong:    oklch(0.28 0.01 260);
+      --text-muted:     oklch(0.48 0.01 260);
+      --text-faint:     oklch(0.55 0.01 260);
+      --section-label:  oklch(0.4 0.01 260);
+      --checkbox-border:oklch(0.7 0.01 260);
+      --field-bg:       oklch(0.985 0.003 260);
+
+      /* neutral chip (recipe / links type tags) */
+      --chip-bg:        oklch(0.94 0.006 260);
+      --chip-fg:        oklch(0.55 0.01 260);
+
+      /* three accents (only these — reused across widgets & news tags) */
+      --green:          oklch(0.48 0.15 130);
+      --red-orange:     oklch(0.55 0.18 25);
+      --gold:           oklch(0.62 0.15 70);
+      --on-accent:      oklch(0.99 0.003 260);
+
+      /* primary interactive = green */
+      --primary:        var(--green);
+      --primary-hover:  oklch(0.42 0.15 130);
+
+      /* news / source tag tints */
+      --openai-fg:      oklch(0.55 0.18 25);
+      --openai-bg:      oklch(0.94 0.03 25);
+      --googleai-fg:    oklch(0.48 0.15 130);
+      --googleai-bg:    oklch(0.93 0.03 130);
+      --techcrunch-fg:  oklch(0.62 0.15 70);
+      --techcrunch-bg:  oklch(0.95 0.03 70);
+
+      /* semantic extras (not in token table but required) */
+      --star:           oklch(0.68 0.15 75);
+      --has-note:       oklch(0.72 0.15 85);
+      --danger:         oklch(0.55 0.2 27);
+      --danger-hover:   oklch(0.48 0.2 27);
+
+      /* radii */
+      --radius-outer:   16px;
+      --radius-card:    8px;   /* widget cards */
+      --radius-card2:   10px;  /* news / links / recipe cards */
+      --radius-pill:    20px;
+
+      /* spacing */
+      --gap-widgets:    22px;
+      --pad-widget:     26px;
+      --gap-cards:      18px;
+      --pad-card:       22px 24px;
+
+      /* fonts */
+      --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-head: 'Space Grotesk', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     }
 
     body {
-      background-color: var(--bg-base);
+      background: var(--page-bg);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--font-body);
       min-height: 100vh;
-      padding: 0;
-    }
-
-    /* ── Page Wrap ── */
-    .page-wrap {
       padding: 2.5rem 1.5rem 4rem;
     }
 
-    /* ── Top Nav ── */
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Outer app container ── */
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-outer);
+      padding: 40px 48px 56px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       NAV
+       ═══════════════════════════════════════════════════════════ */
     .top-nav {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 48px;
-      padding: 0 1.5rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      gap: 1.5rem;
+      margin-bottom: 48px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      min-width: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .brand-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      background: var(--green);
+    }
+
+    .brand-word {
+      font-family: var(--font-head);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-size: 14px;
+      color: var(--text-primary);
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 2rem;
     }
 
     .nav-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 500;
-      padding-bottom: 2px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding-bottom: 4px;
       border-bottom: 2px solid transparent;
       transition: color 0.15s, border-color 0.15s;
     }
 
-    .nav-link:hover {
-      color: var(--text-primary);
-    }
+    .nav-link:hover { color: var(--text-primary); }
 
     .nav-link.active {
       color: var(--text-primary);
-      border-bottom-color: var(--accent-primary);
+      border-bottom-color: var(--green);
     }
 
-    /* ── Header ── */
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-      position: relative;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
-    }
-
-    header h1 span {
-      color: var(--accent-primary);
-    }
-
-    header p {
-      margin-top: 0.5rem;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    /* ── Progress bar ── */
-    .progress-bar-wrap {
-      max-width: 320px;
-      margin: 1.25rem auto 0;
-    }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-bottom: 0.35rem;
-    }
-
-    .progress-bar-track {
-      height: 4px;
-      background: var(--border);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent-primary), var(--accent-teal));
-      border-radius: 99px;
-      transition: width 0.3s ease;
-    }
-
-    /* ── Add Resource Button ── */
-    .add-resource-btn {
-      display: inline-block;
-      margin-top: 1.25rem;
-      background: var(--accent-primary);
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.88rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      font-family: inherit;
-      transition: background 0.15s, transform 0.1s;
-    }
-
-    .add-resource-btn:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-    }
-
-    /* ── Filter Bar ── */
-    .filter-bar-wrap {
-      max-width: 1100px;
-      margin: 0 auto 2rem;
-    }
-
-    .filter-bar {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .filter-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.4rem 1.1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
-      font-family: inherit;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-
-    .filter-btn:hover {
-      background: var(--bg-card-hover);
-      color: var(--text-primary);
-    }
-
-    .filter-btn.active {
-      background: var(--accent-muted);
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-    }
-
-    /* ── Layout ── */
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    /* ── Category Section ── */
-    .category {
-      margin-bottom: 2.5rem;
-    }
-
-    .category-header {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 1rem;
-    }
-
-    .category-header h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .category-header .divider {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ── Completed Section ── */
-    .completed-section .category-header h2 {
-      color: var(--check-done);
-    }
-
-    /* ── Card Grid ── */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-
-    /* ── Link Card ── */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.1rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      transition: background 0.15s, border-color 0.15s, transform 0.15s;
-      position: relative;
-    }
-
-    .card:hover {
-      background: var(--bg-card-hover);
-      border-color: #3b4d65;
-      transform: translateY(-1px);
-    }
-
-    .card.completed {
-      opacity: 0.65;
-    }
-
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
-
-    .card-title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .card-title a {
-      color: var(--text-primary);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.97rem;
-      line-height: 1.3;
-      transition: color 0.15s;
-      word-break: break-word;
-    }
-
-    .card-title a:hover {
-      color: var(--accent-primary);
-    }
-
-    .tag {
-      display: inline-block;
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.2em 0.55em;
-      border-radius: 4px;
-      border: 1px solid #1e3a5f;
-      width: fit-content;
-    }
-
-    .card-desc {
-      color: var(--text-secondary);
-      font-size: 0.84rem;
-      line-height: 1.55;
-    }
-
-    /* ── Review Data on Completed Cards ── */
-    .review-data {
-      margin-top: 0.25rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .review-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .review-date {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .review-stars {
-      color: #f59e0b;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-    }
-
-    .review-summary {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
-      font-style: italic;
-    }
-
-    /* ── Checkbox ── */
-    .check-wrap {
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .check-wrap input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--check-border);
-      border-radius: 5px;
-      background: var(--check-bg);
-      cursor: pointer;
-      display: grid;
-      place-content: center;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .check-wrap input[type="checkbox"]:checked {
-      background: var(--check-done);
-      border-color: var(--check-done);
-    }
-
-    .check-wrap input[type="checkbox"]::after {
-      content: "";
-      display: block;
-      width: 4px;
-      height: 8px;
-      border: 2px solid white;
-      border-top: none;
-      border-left: none;
-      transform: rotate(45deg) translate(-1px, -1px);
-      opacity: 0;
-      transition: opacity 0.1s;
-    }
-
-    .check-wrap input[type="checkbox"]:checked::after {
-      opacity: 1;
-    }
-
-    /* ── Modal ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.72);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 1rem;
-    }
-
-    .modal-overlay.hidden {
-      display: none;
-    }
-
-    .modal-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem;
-      width: 100%;
-      max-width: 460px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-box h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 0.25rem;
-    }
-
-    .modal-resource-name {
-      font-size: 0.88rem;
-      color: var(--accent-primary);
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    /* ── Form ── */
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.35rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .form-group input[type="text"],
-    .form-group input[type="url"],
-    .form-group input[type="date"],
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-primary);
-      padding: 0.5rem 0.75rem;
-      font-size: 0.88rem;
-      font-family: inherit;
-      transition: border-color 0.15s;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 72px;
-    }
-
-    .form-group select {
-      cursor: pointer;
-    }
-
-    /* Calendar picker icon color fix for dark mode */
-    .form-group input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.6);
-      cursor: pointer;
-    }
-
-    .new-entry-input {
-      margin-top: 0.4rem;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.6rem;
-      margin-top: 1.25rem;
-    }
-
-    .btn-cancel {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.45rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-family: inherit;
-      transition: border-color 0.15s, color 0.15s;
-    }
-
-    .btn-cancel:hover {
-      border-color: var(--text-secondary);
-      color: var(--text-primary);
-    }
-
-    .btn-primary {
-      background: var(--accent-primary);
-      border: none;
-      color: #fff;
-      padding: 0.45rem 1.1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      font-family: inherit;
-      transition: background 0.15s;
-    }
-
-    .btn-primary:hover {
-      background: #2563eb;
-    }
-
-    /* ── Star Rating ── */
-    .star-rating {
-      display: flex;
-      gap: 0.2rem;
-    }
-
-    .star, .edit-star {
-      font-size: 1.6rem;
-      color: var(--border);
-      cursor: pointer;
-      transition: color 0.1s;
-      line-height: 1;
-      user-select: none;
-    }
-
-    .star.active, .edit-star.active {
-      color: #f59e0b;
-    }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center;
-      margin-top: 3rem;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    /* ── Card Actions (gear + checkbox wrapper) ── */
-    .card-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    /* ── Gear Button ── */
-    .gear-wrap {
-      position: relative;
-    }
-
-    .gear-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.15s;
-    }
-
-    .gear-btn:hover {
-      color: var(--accent-teal);
-    }
-
-    /* ── Settings Dropdown ── */
-    .settings-menu {
-      position: absolute;
-      top: calc(100% + 4px);
-      right: 0;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.3rem;
-      z-index: 50;
-      min-width: 130px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-    }
-
-    .settings-option {
-      display: block;
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-      font-family: inherit;
-      text-align: left;
-      padding: 0.4rem 0.65rem;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.12s, color 0.12s;
-    }
-
-    .settings-option:hover {
-      background: var(--bg-card-hover);
-      color: var(--text-primary);
-    }
-
-    .settings-option.delete-option {
-      color: #f87171;
-    }
-
-    .settings-option.delete-option:hover {
-      background: rgba(248, 113, 113, 0.1);
-      color: #fca5a5;
-    }
-
-    /* ── Danger Button (delete confirm) ── */
-    .btn-danger {
-      background: #dc2626;
-      border: none;
-      color: #fff;
-      padding: 0.45rem 1.1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      font-family: inherit;
-      transition: background 0.15s;
-    }
-
-    .btn-danger:hover {
-      background: #b91c1c;
-    }
-
-    /* ── Hidden utility ── */
-    .hidden {
-      display: none !important;
-    }
-
-    /* ── Scratchpad Widget ── */
-    #scratchpad-widget {
-      position: relative;
-    }
+    /* ═══════════════════════════════════════════════════════════
+       SCRATCHPAD (nav-embedded pill + floating panel)
+       ═══════════════════════════════════════════════════════════ */
+    #scratchpad-widget { position: relative; flex-shrink: 1; min-width: 0; }
 
     .scratchpad-collapsed {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-secondary);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      color: var(--text-muted);
       padding: 0.4rem 0.75rem;
       cursor: pointer;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-family: inherit;
       display: flex;
       align-items: center;
@@ -673,20 +186,13 @@
     }
 
     .scratchpad-collapsed:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--accent-primary);
+      background: var(--page-bg);
+      border-color: var(--green);
       color: var(--text-primary);
     }
 
-    .scratchpad-icon {
-      font-size: 0.9rem;
-      flex-shrink: 0;
-    }
-
-    #scratchpad-label {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .scratchpad-icon { font-size: 0.9rem; flex-shrink: 0; }
+    #scratchpad-label { overflow: hidden; text-overflow: ellipsis; }
 
     #scratchpad-panel {
       position: absolute;
@@ -696,10 +202,10 @@
       height: 300px;
       min-width: 260px;
       min-height: 200px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.14);
       z-index: 150;
       display: flex;
       flex-direction: column;
@@ -712,15 +218,15 @@
       align-items: center;
       gap: 0.2rem;
       padding: 0.4rem 0.5rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--card-border);
       flex-shrink: 0;
     }
 
-    .scratchpad-fmt-btn {
+    .fmt-btn {
       background: transparent;
       border: 1px solid transparent;
       border-radius: 4px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       cursor: pointer;
       font-size: 0.82rem;
       font-family: inherit;
@@ -729,20 +235,18 @@
       transition: background 0.12s, color 0.12s, border-color 0.12s;
     }
 
-    .scratchpad-fmt-btn:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border);
+    .fmt-btn:hover {
+      background: var(--page-bg);
+      border-color: var(--card-border);
       color: var(--text-primary);
     }
 
-    .scratchpad-toolbar-sep {
-      flex: 1;
-    }
+    .scratchpad-toolbar-sep { flex: 1; }
 
     #scratchpad-close {
       background: transparent;
       border: none;
-      color: var(--text-muted);
+      color: var(--text-faint);
       cursor: pointer;
       font-size: 0.85rem;
       padding: 0.2rem 0.3rem;
@@ -752,11 +256,9 @@
       transition: color 0.12s;
     }
 
-    #scratchpad-close:hover {
-      color: var(--text-primary);
-    }
+    #scratchpad-close:hover { color: var(--text-primary); }
 
-    #scratchpad-content {
+    .rich-content {
       flex: 1;
       padding: 0.75rem;
       color: var(--text-primary);
@@ -769,535 +271,1003 @@
       text-align: left;
     }
 
-    #scratchpad-content h2 {
+    .rich-content h2 {
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--text-primary);
       margin: 0.25rem 0;
     }
 
-    #scratchpad-content font[size="1"] { font-size: 0.7rem; }
-    #scratchpad-content font[size="2"] { font-size: 0.82rem; }
-    #scratchpad-content font[size="3"] { font-size: 1rem; }
-    #scratchpad-content font[size="4"] { font-size: 1.2rem; }
-    #scratchpad-content font[size="5"] { font-size: 1.45rem; font-weight: 600; }
-    #scratchpad-content font[size="6"] { font-size: 1.75rem; font-weight: 700; }
-    #scratchpad-content font[size="7"] { font-size: 2.1rem; font-weight: 700; }
+    .rich-content font[size="1"] { font-size: 0.7rem; }
+    .rich-content font[size="2"] { font-size: 0.82rem; }
+    .rich-content font[size="3"] { font-size: 1rem; }
+    .rich-content font[size="4"] { font-size: 1.2rem; }
+    .rich-content font[size="5"] { font-size: 1.45rem; font-weight: 600; }
+    .rich-content font[size="6"] { font-size: 1.75rem; font-weight: 700; }
+    .rich-content font[size="7"] { font-size: 2.1rem; font-weight: 700; }
 
-    #scratchpad-content ul {
-      padding-left: 1.25rem;
-      margin: 0.2rem 0;
-    }
+    .rich-content ul { padding-left: 1.25rem; margin: 0.2rem 0; }
+    .rich-content li { margin-bottom: 0.15rem; }
 
-    #scratchpad-content li {
-      margin-bottom: 0.15rem;
-    }
-
-    #scratchpad-content:empty::before {
+    .rich-content:empty::before {
       content: attr(data-placeholder);
-      color: var(--text-muted);
+      color: var(--text-faint);
       pointer-events: none;
     }
 
-    /* ── Note Button (per-card) ── */
-    .note-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 0;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: color 0.15s;
-    }
+    /* ═══════════════════════════════════════════════════════════
+       TABS / SECTIONS
+       ═══════════════════════════════════════════════════════════ */
+    .tab-panel { animation: fade 0.2s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-    .note-btn:hover {
-      color: var(--accent-teal);
-    }
-
-    .note-btn.has-note {
-      color: #FACC15;
-    }
-
-    .note-btn.has-note:hover {
-      color: #fde047;
-    }
-
-    /* ── Weather Widget ── */
-    #weather-widget {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-
-    .weather-collapsed {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-secondary);
-      padding: 0.4rem 0.75rem;
-      cursor: pointer;
-      font-size: 0.82rem;
-      font-family: inherit;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      white-space: nowrap;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-    }
-
-    .weather-collapsed:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--accent-primary);
-      color: var(--text-primary);
-    }
-
-    #weather-panel {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      width: 220px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-      z-index: 150;
-      padding: 0.85rem 1rem;
-      font-size: 0.85rem;
-    }
-
-    .weather-current {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      margin-bottom: 0.1rem;
-    }
-
-    .weather-temp-row {
-      display: flex;
-      align-items: baseline;
-      gap: 0.4rem;
-    }
-
-    .weather-temp-big {
-      font-size: 1.5rem;
+    .page-title {
+      font-family: var(--font-head);
       font-weight: 700;
+      font-size: 34px;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    /* section divider label (JetBrains Mono, 0.1em) */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .section-head .label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--section-label);
+      font-weight: 600;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .section-head .rule {
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HOME
+       ═══════════════════════════════════════════════════════════ */
+    .greeting-block { margin-bottom: 48px; }
+
+    .greeting {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 44px;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .greeting-time {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--green);
+      letter-spacing: 0.02em;
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--gap-widgets);
+    }
+
+    .widget {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      padding: var(--pad-widget);
+      position: relative;
+    }
+
+    .widget.green  { border-top: 2px solid var(--green); }
+    .widget.orange { border-top: 2px solid var(--red-orange); }
+    .widget.gold   { border-top: 2px solid var(--gold); }
+
+    .widget-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    .widget-label.green  { color: var(--green); }
+    .widget-label.orange { color: var(--red-orange); }
+    .widget-label.gold   { color: var(--gold); }
+
+    .widget-chip {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      color: var(--on-accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .widget-chip.orange { background: var(--red-orange); }
+    .widget-chip.gold   { background: var(--gold); }
+
+    /* Weather card */
+    .weather-emoji {
+      position: absolute;
+      top: 22px;
+      right: 24px;
+      font-size: 30px;
+      line-height: 1;
+    }
+    .weather-temp {
+      font-family: var(--font-head);
+      font-size: 46px;
+      font-weight: 600;
       color: var(--text-primary);
       line-height: 1;
     }
-
-    .weather-icon-big {
-      font-size: 1.3rem;
-      line-height: 1;
-    }
-
-    .weather-condition {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
+    .weather-cond {
+      font-size: 15px;
+      color: var(--text-strong);
+      margin-top: 8px;
       text-transform: capitalize;
     }
-
     .weather-hilo {
+      font-size: 13px;
       color: var(--text-muted);
-      font-size: 0.77rem;
+      margin-top: 4px;
     }
-
-    .weather-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0.6rem 0;
-    }
-
     .weather-forecast {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--hairline);
     }
-
     .weather-forecast-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 13px;
     }
-
-    .weather-forecast-day {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      width: 32px;
-    }
-
-    .weather-forecast-icon {
-      font-size: 1rem;
-    }
-
-    .weather-forecast-hilo {
-      color: var(--text-muted);
-      font-size: 0.77rem;
-    }
-
+    .weather-forecast-day { color: var(--text-muted); width: 40px; }
+    .weather-forecast-icon { font-size: 16px; }
+    .weather-forecast-hilo { color: var(--text-faint); }
     .weather-city-row {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 6px;
+      margin-top: 16px;
     }
-
     .weather-city-input {
       flex: 1;
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 5px;
+      background: var(--field-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
       color: var(--text-primary);
-      padding: 0.3rem 0.5rem;
-      font-size: 0.78rem;
+      padding: 0.4rem 0.55rem;
+      font-size: 0.8rem;
       font-family: inherit;
       min-width: 0;
     }
-
-    .weather-city-input:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-    }
-
+    .weather-city-input:focus { outline: none; border-color: var(--green); }
     .weather-city-submit {
-      background: var(--accent-primary);
+      background: var(--green);
       border: none;
-      color: #fff;
-      border-radius: 5px;
-      padding: 0.3rem 0.5rem;
+      color: var(--on-accent);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
       cursor: pointer;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-family: inherit;
       flex-shrink: 0;
       transition: background 0.15s;
     }
-
-    .weather-city-submit:hover {
-      background: #2563eb;
-    }
-
+    .weather-city-submit:hover { background: var(--primary-hover); }
     .weather-city-clear {
       background: transparent;
       border: none;
-      color: var(--text-muted);
+      color: var(--text-faint);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       padding: 0;
       line-height: 1;
       flex-shrink: 0;
       transition: color 0.15s;
     }
+    .weather-city-clear:hover { color: var(--text-primary); }
+    .weather-error-text { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
 
-    .weather-city-clear:hover {
-      color: var(--text-primary);
+    /* preview list (AI Links + Recipes widgets) */
+    .preview-list { display: flex; flex-direction: column; gap: 12px; }
+    .preview-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .preview-row-title {
+      font-size: 13px;
+      color: var(--text-strong);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .preview-row-title span.dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .preview-row-title .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dot.orange { background: var(--red-orange); }
+    .dot.gold   { background: var(--gold); }
+    .preview-empty { font-size: 13px; color: var(--text-faint); font-style: italic; }
+
+    .widget-header-link { cursor: pointer; }
+    .widget-count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      margin-left: auto;
+    }
+    .widget-count.orange { color: var(--red-orange); }
+
+    /* neutral source/type tag (shared) */
+    .neutral-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      color: var(--chip-fg);
+      background: var(--chip-bg);
+      padding: 3px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      text-transform: uppercase;
     }
 
-    .weather-error-text {
+    /* To-Do static rows */
+    .todo-row { display: flex; align-items: center; gap: 12px; }
+    .todo-box {
+      width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+      border: 1.5px solid var(--checkbox-border);
+    }
+    .todo-box.done {
+      background: var(--green); border-color: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-accent); font-size: 11px;
+    }
+    .todo-text { font-size: 14px; color: var(--text-strong); }
+    .todo-text.done { color: var(--text-faint); text-decoration: line-through; }
+    .todo-list { display: flex; flex-direction: column; gap: 14px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       LINKS TAB
+       ═══════════════════════════════════════════════════════════ */
+    .links-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 8px;
+    }
+
+    .btn-accent {
+      background: var(--green);
+      color: var(--on-accent);
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 11px 20px;
+      border-radius: 8px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-accent:hover { background: var(--primary-hover); }
+
+    .reviewed-line {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+      color: var(--green);
+      margin-bottom: 28px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .filter-btn {
+      cursor: pointer;
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--green); color: var(--text-primary); }
+    .filter-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--on-accent);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--gap-cards);
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card2);
+      padding: var(--pad-card);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      transition: border-color 0.15s;
+    }
+    .card:hover { border-color: var(--checkbox-border); }
+    .card.completed { opacity: 0.85; }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title-wrap { flex: 1; min-width: 0; }
+
+    .card-title a {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.3;
+      word-break: break-word;
+      transition: color 0.15s;
+    }
+    .card-title a:hover { color: var(--green); }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    /* styled checkbox */
+    .check-wrap input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--checkbox-border);
+      border-radius: 5px;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .check-wrap input[type="checkbox"]:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .check-wrap input[type="checkbox"]::after {
+      content: "";
+      display: block;
+      width: 5px;
+      height: 9px;
+      border: 2px solid var(--on-accent);
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+      opacity: 0;
+    }
+    .check-wrap input[type="checkbox"]:checked::after { opacity: 1; }
+
+    /* gear + note buttons */
+    .gear-wrap { position: relative; }
+    .gear-btn, .note-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-faint);
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .gear-btn:hover { color: var(--green); }
+    .gear-btn { font-size: 0.95rem; }
+    .note-btn:hover { color: var(--green); }
+    .note-btn.has-note { color: var(--has-note); }
+
+    .settings-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.3rem;
+      z-index: 50;
+      min-width: 140px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .settings-option {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: none;
       color: var(--text-muted);
       font-size: 0.82rem;
-      margin-bottom: 0.5rem;
+      font-family: inherit;
+      text-align: left;
+      padding: 0.4rem 0.65rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .settings-option:hover { background: var(--page-bg); color: var(--text-primary); }
+    .settings-option.delete-option { color: var(--danger); }
+    .settings-option.delete-option:hover { background: oklch(0.95 0.04 27); color: var(--danger-hover); }
+
+    /* review data on completed cards */
+    .review-data {
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--hairline);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .review-meta { display: flex; align-items: center; gap: 0.75rem; }
+    .review-date { font-size: 12px; color: var(--text-faint); }
+    .review-stars { color: var(--star); font-size: 0.85rem; letter-spacing: 0.05em; }
+    .review-summary { font-size: 13px; color: var(--text-muted); line-height: 1.45; font-style: italic; }
+
+    .empty-note { font-size: 14px; color: var(--text-faint); font-style: italic; padding: 4px 0 8px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       NEWS TAB
+       ═══════════════════════════════════════════════════════════ */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--gap-cards);
+      margin-bottom: 48px;
     }
 
-    .weather-set-city {
-      font-size: 0.75rem;
+    .news-card {
+      display: block;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card2);
+      padding: var(--pad-card);
+      transition: border-color 0.15s;
+    }
+    .news-card:hover { border-color: var(--checkbox-border); }
+
+    .news-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .news-date { font-size: 12px; color: var(--text-faint); }
+    .news-card-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .news-summary { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+    .source-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 5px;
+      text-transform: uppercase;
+    }
+    .source-tag.openai     { color: var(--openai-fg);     background: var(--openai-bg); }
+    .source-tag.googleai   { color: var(--googleai-fg);   background: var(--googleai-bg); }
+    .source-tag.techcrunch { color: var(--techcrunch-fg); background: var(--techcrunch-bg); }
+
+    .industry-list {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card2);
+      overflow: hidden;
+    }
+    .industry-row {
+      display: block;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--hairline);
+      transition: background 0.15s;
+    }
+    .industry-row:last-child { border-bottom: none; }
+    .industry-row:hover { background: var(--page-bg); }
+    .industry-row .news-card-title { font-size: 16px; margin-bottom: 6px; }
+
+    /* skeletons */
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .skeleton-card, .skeleton-row {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card2);
+      padding: var(--pad-card);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    .skeleton-row { border-radius: 0; border: none; border-bottom: 1px solid var(--hairline); }
+    .sk { background: var(--hairline); border-radius: 4px; }
+    .sk-badge { height: 18px; width: 70px; margin-bottom: 12px; }
+    .sk-title { height: 16px; width: 80%; margin-bottom: 8px; }
+    .sk-text { height: 12px; width: 92%; }
+    .feed-error { color: var(--text-faint); font-size: 14px; padding: 0.5rem 0; }
+    .feed-unavailable { color: var(--text-faint); font-size: 14px; padding: 3rem 0; text-align: center; }
+
+    /* ═══════════════════════════════════════════════════════════
+       RECIPES TAB
+       ═══════════════════════════════════════════════════════════ */
+    .recipe-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+    .recipe-body ul { padding-left: 1.1rem; margin: 0.2rem 0; }
+    .recipe-note-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      color: var(--chip-fg);
+      background: var(--chip-bg);
+      padding: 3px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MODALS + FORMS
+       ═══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 24, 33, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+
+    .modal-box h2 {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-resource-name {
+      font-size: 0.88rem;
+      color: var(--green);
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
       color: var(--text-muted);
       margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group input[type="date"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--field-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.88rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { outline: none; border-color: var(--green); }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+    .form-group select { cursor: pointer; }
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; }
+
+    .new-entry-input { margin-top: 0.4rem; }
+
+    /* rich-text editor inside a modal (recipe notes) */
+    .modal-rich {
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--field-bg);
+    }
+    .modal-rich .scratchpad-toolbar { background: var(--card-bg); }
+    .modal-rich .rich-content { min-height: 130px; max-height: 240px; font-size: 0.9rem; }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-cancel:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+    .btn-primary {
+      background: var(--green);
+      border: none;
+      color: var(--on-accent);
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-danger {
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: var(--danger-hover); }
+
+    /* segmented toggle (recipe link/note) */
+    .segmented {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .segmented button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+    }
+    .segmented button.active { background: var(--green); color: var(--on-accent); }
+
+    /* star rating */
+    .star-rating { display: flex; gap: 0.2rem; }
+    .star, .edit-star {
+      font-size: 1.6rem;
+      color: var(--card-border);
+      cursor: pointer;
+      transition: color 0.1s;
+      line-height: 1;
+      user-select: none;
+    }
+    .star.active, .edit-star.active { color: var(--star); }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--text-faint);
+      font-size: 0.8rem;
+    }
+
+    .hidden { display: none !important; }
+
     /* ── Responsive ── */
-    @media (max-width: 600px) {
-      .top-nav { height: 42px; }
-      .nav-link { font-size: 0.82rem; }
-      header h1 { font-size: 1.5rem; }
-      .card-grid { grid-template-columns: 1fr; }
-      .modal-box { padding: 1.25rem; }
-      #weather-panel { width: 185px; }
+    @media (max-width: 900px) {
+      .lab-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      body { padding: 1rem 0.75rem 3rem; }
+      .app { padding: 24px 20px 36px; border-radius: 12px; }
+      .top-nav { flex-wrap: wrap; gap: 1rem; margin-bottom: 32px; }
+      .nav-links { gap: 1.25rem; order: 3; width: 100%; }
+      .greeting { font-size: 32px; }
+      .page-title { font-size: 26px; }
+      .card-grid, .widget-grid { grid-template-columns: 1fr; }
+      .links-head { flex-direction: column; gap: 12px; }
     }
   </style>
 </head>
 <body>
 
-  <nav class="top-nav">
+  <div class="app">
 
-    <!-- ── Scratchpad Widget ── -->
-    <div id="scratchpad-widget">
-      <button id="scratchpad-toggle" class="scratchpad-collapsed" title="Open scratchpad">
-        <span class="scratchpad-icon">&#128221;</span>
-        <span id="scratchpad-label">Scratchpad</span>
-      </button>
-      <div id="scratchpad-panel" class="hidden">
-        <div class="scratchpad-toolbar">
-          <button type="button" class="scratchpad-fmt-btn" data-action="font-up" title="Increase font size">&#8593;</button>
-          <button type="button" class="scratchpad-fmt-btn" data-action="font-down" title="Decrease font size">&#8595;</button>
-          <button type="button" class="scratchpad-fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226;</button>
-          <button type="button" class="scratchpad-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
-          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyLeft" title="Align left"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
-          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyCenter" title="Align center"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
-          <button type="button" class="scratchpad-fmt-btn" data-cmd="justifyRight" title="Align right"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
-          <div class="scratchpad-toolbar-sep"></div>
-          <button type="button" id="scratchpad-close" title="Close">&#10005;</button>
+    <!-- ═══════════════ NAV ═══════════════ -->
+    <nav class="top-nav">
+      <div class="nav-left">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-word">DASHBOARD</span>
         </div>
-        <div id="scratchpad-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your notes..."></div>
+
+        <!-- ── Scratchpad Widget ── -->
+        <div id="scratchpad-widget">
+          <button id="scratchpad-toggle" class="scratchpad-collapsed" title="Open scratchpad">
+            <span class="scratchpad-icon">&#128221;</span>
+            <span id="scratchpad-label">Scratchpad</span>
+          </button>
+          <div id="scratchpad-panel" class="hidden">
+            <div class="scratchpad-toolbar">
+              <button type="button" class="fmt-btn" data-action="font-up" title="Increase font size">&#8593;</button>
+              <button type="button" class="fmt-btn" data-action="font-down" title="Decrease font size">&#8595;</button>
+              <button type="button" class="fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226;</button>
+              <button type="button" class="fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+              <button type="button" class="fmt-btn" data-cmd="justifyLeft" title="Align left"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+              <button type="button" class="fmt-btn" data-cmd="justifyCenter" title="Align center"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+              <button type="button" class="fmt-btn" data-cmd="justifyRight" title="Align right"><svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+              <div class="scratchpad-toolbar-sep"></div>
+              <button type="button" id="scratchpad-close" title="Close">&#10005;</button>
+            </div>
+            <div id="scratchpad-content" class="rich-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your notes..."></div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="nav-links">
-      <a href="index.html" class="nav-link active">Home</a>
-      <a href="news.html" class="nav-link">News</a>
-    </div>
-
-  </nav>
-
-  <div class="page-wrap">
-
-  <header>
-
-    <!-- ── Weather Widget ── -->
-    <div id="weather-widget">
-      <button id="weather-toggle" class="weather-collapsed" title="Weather">
-        <span id="weather-compact">—° ⏳</span>
-      </button>
-      <div id="weather-panel" class="hidden"></div>
-    </div>
-
-    <h1>Dan's AI <span>Learning Hub</span></h1>
-    <p>Your centralized dashboard for AI resources, courses, and community picks.</p>
-    <div class="progress-bar-wrap">
-      <div class="progress-label">
-        <span>Progress</span>
-        <span id="progress-text">0 / 12 completed</span>
+      <div class="nav-links">
+        <a class="nav-link active" data-tab="home">Home</a>
+        <a class="nav-link" data-tab="news">News</a>
+        <a class="nav-link" data-tab="links">Links</a>
+        <a class="nav-link" data-tab="recipes">Recipes</a>
       </div>
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+    </nav>
+
+    <!-- ═══════════════ HOME ═══════════════ -->
+    <section id="tab-home" class="tab-panel">
+      <div class="greeting-block">
+        <h1 class="greeting" id="greeting">Hello</h1>
+        <div class="greeting-time" id="greeting-time"></div>
       </div>
-    </div>
-    <button id="add-resource-btn" class="add-resource-btn">+ Add Resource</button>
-  </header>
 
-  <!-- ── Filter Bar ── -->
-  <div class="filter-bar-wrap">
-    <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="open">Open</button>
-      <button class="filter-btn" data-filter="completed">Completed</button>
-    </div>
-  </div>
+      <div class="widget-grid">
 
-  <!-- ── Main content — rendered dynamically from localStorage ── -->
-  <main id="main-content"></main>
+        <!-- Weather -->
+        <div class="widget green" id="weather-card">
+          <div class="widget-label green">Weather</div>
+          <div id="weather-body"></div>
+        </div>
 
-  <footer>
-    <p>Open locally in any browser &mdash; no server required.</p>
-  </footer>
+        <!-- AI Links preview -->
+        <div class="widget orange">
+          <div class="widget-header-link" data-tab-go="links" style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">
+            <div class="widget-label orange" style="margin-bottom:0;">AI Links</div>
+            <span class="widget-chip orange">AI</span>
+            <span class="widget-count orange" id="links-count">0/0 &rarr;</span>
+          </div>
+          <div class="preview-list" id="links-preview"></div>
+        </div>
 
-  </div><!-- /.page-wrap -->
+        <!-- To-Do (static placeholder) -->
+        <div class="widget green">
+          <div class="widget-label green">To-Do &middot; 1 of 4 done</div>
+          <div class="todo-list">
+            <div class="todo-row"><div class="todo-box done">&#10003;</div><span class="todo-text done">Ship dashboard redesign</span></div>
+            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Review Q3 roadmap doc</span></div>
+            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Reply to Sarah re: contract</span></div>
+            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Book dentist appointment</span></div>
+          </div>
+        </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Add Resource Modal                                         -->
-  <!-- ────────────────────────────────────────────────────────── -->
+        <!-- Recipes preview -->
+        <div class="widget gold">
+          <div class="widget-header-link" data-tab-go="recipes" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <div class="widget-label gold" style="margin-bottom:0;">Recipes</div>
+            <span class="widget-chip gold">Saved</span>
+          </div>
+          <div class="preview-list" id="recipes-preview"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════ NEWS ═══════════════ -->
+    <section id="tab-news" class="tab-panel hidden">
+      <h1 class="page-title" style="margin-bottom:40px;">News</h1>
+
+      <div class="section-head"><span class="label">Lab Announcements</span><div class="rule"></div></div>
+      <div class="lab-grid" id="lab-grid"></div>
+
+      <div class="section-head"><span class="label">Industry News</span><div class="rule"></div></div>
+      <div class="industry-list" id="industry-list"></div>
+    </section>
+
+    <!-- ═══════════════ LINKS ═══════════════ -->
+    <section id="tab-links" class="tab-panel hidden">
+      <div class="links-head">
+        <h1 class="page-title">AI Links</h1>
+        <button id="add-resource-btn" class="btn-accent">+ Add Resource</button>
+      </div>
+      <div class="reviewed-line" id="reviewed-line">0 of 0 reviewed</div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="open">Open</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+
+      <div id="main-content"></div>
+    </section>
+
+    <!-- ═══════════════ RECIPES ═══════════════ -->
+    <section id="tab-recipes" class="tab-panel hidden">
+      <div class="links-head">
+        <h1 class="page-title">Recipes</h1>
+        <button id="add-recipe-btn" class="btn-accent">+ Add Recipe</button>
+      </div>
+      <div class="reviewed-line" id="recipes-count" style="color:var(--gold);">0 saved</div>
+      <div class="card-grid" id="recipes-content" style="margin-bottom:0;"></div>
+      <div class="empty-note hidden" id="recipes-empty">No recipes yet — add your first with “+ Add Recipe”.</div>
+    </section>
+
+    <footer>
+      <p>Open locally in any browser &mdash; no server required.</p>
+    </footer>
+
+  </div><!-- /.app -->
+
+  <!-- ────────────────────────── MODALS ────────────────────────── -->
+
+  <!-- Add Resource -->
   <div id="add-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Add Resource</h2>
       <form id="add-form">
-
-        <div class="form-group">
-          <label for="res-title">Title</label>
-          <input type="text" id="res-title" placeholder="Resource name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="res-url">URL</label>
-          <input type="url" id="res-url" placeholder="https://..." required>
-        </div>
-
-        <div class="form-group">
-          <label for="res-desc">Description</label>
-          <textarea id="res-desc" placeholder="1–2 sentences about this resource" required></textarea>
-        </div>
-
-        <!-- Resource Type — dropdown with inline "Add New" option -->
-        <div class="form-group">
-          <label for="res-type">Resource Type</label>
-          <select id="res-type"></select>
-          <input type="text" id="res-type-new" class="hidden new-entry-input" placeholder="New type name...">
-        </div>
-
-        <!-- Category — dropdown with inline "Add New" option -->
-        <div class="form-group">
-          <label for="res-category">Category</label>
-          <select id="res-category"></select>
-          <input type="text" id="res-category-new" class="hidden new-entry-input" placeholder="New category name...">
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" id="add-cancel">Cancel</button>
-          <button type="submit" class="btn-primary">Add Resource</button>
-        </div>
-
+        <div class="form-group"><label for="res-title">Title</label><input type="text" id="res-title" placeholder="Resource name" required></div>
+        <div class="form-group"><label for="res-url">URL</label><input type="url" id="res-url" placeholder="https://..." required></div>
+        <div class="form-group"><label for="res-desc">Description</label><textarea id="res-desc" placeholder="1–2 sentences about this resource" required></textarea></div>
+        <div class="form-group"><label for="res-type">Resource Type</label><select id="res-type"></select><input type="text" id="res-type-new" class="hidden new-entry-input" placeholder="New type name..."></div>
+        <div class="form-group"><label for="res-category">Category</label><select id="res-category"></select><input type="text" id="res-category-new" class="hidden new-entry-input" placeholder="New category name..."></div>
+        <div class="form-actions"><button type="button" class="btn-cancel" id="add-cancel">Cancel</button><button type="submit" class="btn-primary">Add Resource</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Review Modal — triggered when a card is checked           -->
-  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Review -->
   <div id="review-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Quick Review</h2>
       <p id="review-resource-name" class="modal-resource-name"></p>
       <form id="review-form">
-
-        <div class="form-group">
-          <label for="review-date">Date Completed</label>
-          <input type="date" id="review-date">
-        </div>
-
-        <div class="form-group">
-          <label for="review-summary">What did you learn?</label>
-          <textarea id="review-summary" placeholder="1–3 sentences..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="review-type">Resource Type</label>
-          <input type="text" id="review-type">
-        </div>
-
-        <div class="form-group">
-          <label>Rating</label>
-          <div class="star-rating" id="star-rating">
-            <span class="star" data-value="1">&#9733;</span>
-            <span class="star" data-value="2">&#9733;</span>
-            <span class="star" data-value="3">&#9733;</span>
-            <span class="star" data-value="4">&#9733;</span>
-            <span class="star" data-value="5">&#9733;</span>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" id="review-skip">Skip Review</button>
-          <button type="submit" class="btn-primary">Save Review</button>
-        </div>
-
+        <div class="form-group"><label for="review-date">Date Completed</label><input type="date" id="review-date"></div>
+        <div class="form-group"><label for="review-summary">What did you learn?</label><textarea id="review-summary" placeholder="1–3 sentences..."></textarea></div>
+        <div class="form-group"><label for="review-type">Resource Type</label><input type="text" id="review-type"></div>
+        <div class="form-group"><label>Rating</label><div class="star-rating" id="star-rating">
+          <span class="star" data-value="1">&#9733;</span><span class="star" data-value="2">&#9733;</span><span class="star" data-value="3">&#9733;</span><span class="star" data-value="4">&#9733;</span><span class="star" data-value="5">&#9733;</span>
+        </div></div>
+        <div class="form-actions"><button type="button" class="btn-cancel" id="review-skip">Skip Review</button><button type="submit" class="btn-primary">Save Review</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Edit Card Modal                                           -->
-  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Edit Card -->
   <div id="edit-card-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Edit Resource</h2>
       <form id="edit-card-form">
-
-        <div class="form-group">
-          <label for="edit-title">Title</label>
-          <input type="text" id="edit-title" placeholder="Resource name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-url">URL</label>
-          <input type="url" id="edit-url" placeholder="https://..." required>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-desc">Description</label>
-          <textarea id="edit-desc" placeholder="1–2 sentences about this resource" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-type">Resource Type</label>
-          <select id="edit-type"></select>
-          <input type="text" id="edit-type-new" class="hidden new-entry-input" placeholder="New type name...">
-        </div>
-
-        <div class="form-group">
-          <label for="edit-category">Category</label>
-          <select id="edit-category"></select>
-          <input type="text" id="edit-category-new" class="hidden new-entry-input" placeholder="New category name...">
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" id="edit-card-cancel">Cancel</button>
-          <button type="submit" class="btn-primary">Save Changes</button>
-        </div>
-
+        <div class="form-group"><label for="edit-title">Title</label><input type="text" id="edit-title" placeholder="Resource name" required></div>
+        <div class="form-group"><label for="edit-url">URL</label><input type="url" id="edit-url" placeholder="https://..." required></div>
+        <div class="form-group"><label for="edit-desc">Description</label><textarea id="edit-desc" placeholder="1–2 sentences about this resource" required></textarea></div>
+        <div class="form-group"><label for="edit-type">Resource Type</label><select id="edit-type"></select><input type="text" id="edit-type-new" class="hidden new-entry-input" placeholder="New type name..."></div>
+        <div class="form-group"><label for="edit-category">Category</label><select id="edit-category"></select><input type="text" id="edit-category-new" class="hidden new-entry-input" placeholder="New category name..."></div>
+        <div class="form-actions"><button type="button" class="btn-cancel" id="edit-card-cancel">Cancel</button><button type="submit" class="btn-primary">Save Changes</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Delete Confirmation Modal                                  -->
-  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Delete (generic: resource or recipe) -->
   <div id="delete-modal" class="modal-overlay hidden">
     <div class="modal-box">
-      <h2>Delete Resource</h2>
+      <h2 id="delete-title">Delete</h2>
       <p id="delete-resource-name" class="modal-resource-name"></p>
-      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">This cannot be undone.</p>
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" id="delete-cancel">Cancel</button>
-        <button type="button" class="btn-danger" id="delete-confirm">Delete</button>
-      </div>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">This cannot be undone.</p>
+      <div class="form-actions"><button type="button" class="btn-cancel" id="delete-cancel">Cancel</button><button type="button" class="btn-danger" id="delete-confirm">Delete</button></div>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Edit Review Modal                                          -->
-  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Edit Review -->
   <div id="edit-review-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Edit Review</h2>
       <p id="edit-review-resource-name" class="modal-resource-name"></p>
       <form id="edit-review-form">
-
-        <div class="form-group">
-          <label for="edit-review-date">Date Completed</label>
-          <input type="date" id="edit-review-date">
-        </div>
-
-        <div class="form-group">
-          <label for="edit-review-summary">What did you learn?</label>
-          <textarea id="edit-review-summary" placeholder="1–3 sentences..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-review-type">Resource Type</label>
-          <input type="text" id="edit-review-type">
-        </div>
-
-        <div class="form-group">
-          <label>Rating</label>
-          <div class="star-rating" id="edit-star-rating">
-            <span class="edit-star" data-value="1">&#9733;</span>
-            <span class="edit-star" data-value="2">&#9733;</span>
-            <span class="edit-star" data-value="3">&#9733;</span>
-            <span class="edit-star" data-value="4">&#9733;</span>
-            <span class="edit-star" data-value="5">&#9733;</span>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" id="edit-review-cancel">Cancel</button>
-          <button type="submit" class="btn-primary">Save Review</button>
-        </div>
-
+        <div class="form-group"><label for="edit-review-date">Date Completed</label><input type="date" id="edit-review-date"></div>
+        <div class="form-group"><label for="edit-review-summary">What did you learn?</label><textarea id="edit-review-summary" placeholder="1–3 sentences..."></textarea></div>
+        <div class="form-group"><label for="edit-review-type">Resource Type</label><input type="text" id="edit-review-type"></div>
+        <div class="form-group"><label>Rating</label><div class="star-rating" id="edit-star-rating">
+          <span class="edit-star" data-value="1">&#9733;</span><span class="edit-star" data-value="2">&#9733;</span><span class="edit-star" data-value="3">&#9733;</span><span class="edit-star" data-value="4">&#9733;</span><span class="edit-star" data-value="5">&#9733;</span>
+        </div></div>
+        <div class="form-actions"><button type="button" class="btn-cancel" id="edit-review-cancel">Cancel</button><button type="submit" class="btn-primary">Save Review</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ────────────────────────────────────────────────────────── -->
-  <!-- Card Note Modal                                            -->
-  <!-- ────────────────────────────────────────────────────────── -->
+  <!-- Card Note -->
   <div id="note-modal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Card Note</h2>
       <p id="note-resource-name" class="modal-resource-name"></p>
-      <div class="form-group">
-        <textarea id="note-textarea" placeholder="Add your notes here..." style="min-height: 160px;"></textarea>
-      </div>
+      <div class="form-group"><textarea id="note-textarea" placeholder="Add your notes here..." style="min-height: 160px;"></textarea></div>
       <div class="form-actions">
         <button type="button" class="btn-danger hidden" id="note-delete" style="margin-right: auto;">Delete Note</button>
         <button type="button" class="btn-cancel" id="note-cancel">Cancel</button>
@@ -1306,15 +1276,50 @@
     </div>
   </div>
 
+  <!-- Add / Edit Recipe -->
+  <div id="recipe-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2 id="recipe-modal-title">Add Recipe</h2>
+      <div class="segmented" id="recipe-type-toggle">
+        <button type="button" data-rtype="link" class="active">Link</button>
+        <button type="button" data-rtype="note">Note</button>
+      </div>
+      <form id="recipe-form">
+        <div class="form-group"><label for="recipe-title">Title</label><input type="text" id="recipe-title" placeholder="Recipe name" required></div>
+
+        <!-- Link fields -->
+        <div id="recipe-link-fields">
+          <div class="form-group"><label for="recipe-url">URL</label><input type="url" id="recipe-url" placeholder="https://..."></div>
+          <div class="form-group"><label for="recipe-source">Source Tag</label><input type="text" id="recipe-source" placeholder="e.g. NYT COOKING"></div>
+        </div>
+
+        <!-- Note fields -->
+        <div id="recipe-note-fields" class="hidden">
+          <div class="form-group">
+            <label>Recipe Notes</label>
+            <div class="modal-rich" id="recipe-rich">
+              <div class="scratchpad-toolbar">
+                <button type="button" class="fmt-btn" data-action="font-up" title="Increase font size">&#8593;</button>
+                <button type="button" class="fmt-btn" data-action="font-down" title="Decrease font size">&#8595;</button>
+                <button type="button" class="fmt-btn" data-cmd="insertUnorderedList" title="Bullet list">&#8226;</button>
+                <button type="button" class="fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                <button type="button" class="fmt-btn" data-cmd="justifyLeft" title="Align left"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+                <button type="button" class="fmt-btn" data-cmd="justifyCenter" title="Align center"><svg width="12" height="10" viewBox="0 0 12 10" fill="none"><line x1="0" y1="1" x2="12" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/></svg></button>
+              </div>
+              <div id="recipe-note-content" class="rich-content" contenteditable="true" spellcheck="true" data-placeholder="Ingredients, steps, notes..."></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions"><button type="button" class="btn-cancel" id="recipe-cancel">Cancel</button><button type="submit" class="btn-primary" id="recipe-submit">Add Recipe</button></div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ═══════════════════════════════════════════════════════════
-    // CONSTANTS & SEED DATA
-    //
-    // To add seed resources: push an object to SEED_RESOURCES.
-    // To add seed categories: push a string to SEED_CATEGORIES.
-    // To add seed resource types: push a string to SEED_TYPES.
+    // KEYS & SEED DATA
     // ═══════════════════════════════════════════════════════════
-
     const KEYS = {
       resources:  'ai_resources',
       categories: 'ai_categories',
@@ -1322,112 +1327,208 @@
       completion: 'ai_completion_data',
       scratchpad: 'ai_scratchpad',
       cardNotes:  'ai_card_notes',
+      recipes:    'ai_recipes',
     };
 
     const SEED_RESOURCES = [
-      // ── GitHub Repos & Skills ──────────────────────────────────────────
-      { id: 0,  title: 'Prompt Master',           url: 'https://github.com/nidhinjs/prompt-master',                                                                                              description: 'Claude skill that writes accurate prompts for any AI tool.',          type: 'GitHub', category: 'GitHub Repos & Skills' },
-      { id: 1,  title: 'System Prompts',           url: 'https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools',                                                                     description: 'System prompts from top AI companies; useful for instruction ideas.',  type: 'GitHub', category: 'GitHub Repos & Skills' },
-      { id: 2,  title: 'Anthropic GitHub',         url: 'https://github.com/anthropics',                                                                                                         description: 'Official Anthropic repos including agents, skills, and guides.',       type: 'GitHub', category: 'GitHub Repos & Skills' },
-      { id: 3,  title: 'Factchecker Skill',        url: 'https://github.com/Shubhamsaboo/awesome-llm-apps/blob/main/awesome_agent_skills/fact-checker/SKILL.md',                                description: 'Fact-checker skill for Claude.',                                       type: 'GitHub', category: 'GitHub Repos & Skills' },
-      // ── Anthropic Learning ────────────────────────────────────────────
-      { id: 4,  title: 'Claude API Docs',          url: 'https://platform.claude.com/docs/en/home',                                                                                              description: 'Learn APIs and advanced coding/automation.',                           type: 'Docs',   category: 'Anthropic Learning' },
-      { id: 5,  title: 'Claude Agents Guide',      url: 'https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview',                                                           description: 'How to build and use Claude agents.',                                 type: 'Docs',   category: 'Anthropic Learning' },
-      { id: 6,  title: 'Anthropic Courses',        url: 'https://anthropic.skilljar.com/',                                                                                                       description: 'Official Anthropic courses for structured learning.',                  type: 'Course', category: 'Anthropic Learning' },
-      { id: 7,  title: 'Superpowers Plugin',       url: 'https://claude.com/plugins/superpowers',                                                                                                description: 'Claude Code skills for advanced development workflows.',               type: 'Docs',   category: 'Anthropic Learning' },
-      { id: 8,  title: 'Claude Code Quickstart',   url: 'https://code.claude.com/docs/en/quickstart',                                                                                           description: 'Basics of Claude Code from Anthropic.',                               type: 'Docs',   category: 'Anthropic Learning' },
-      // ── Community & Media ─────────────────────────────────────────────
-      { id: 9,  title: 'Reddit: Prompt Master',    url: 'https://www.reddit.com/r/ClaudeAI/comments/1rxyarx/i_built_a_claude_skill_that_writes_accurate/',                                      description: 'Community post about the Prompt Master skill.',                        type: 'Reddit', category: 'Community & Media' },
-      { id: 10, title: 'Reddit: Claude Skills',    url: 'https://www.reddit.com/r/ClaudeCowork/comments/1s3ljzh/6_skills_i_actually_use_every_day/',                                            description: '6 Claude skills used daily; paths to add skills.',                    type: 'Reddit', category: 'Community & Media' },
-      { id: 11, title: 'YouTube: GitHub Beginners',url: 'https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f',                                                description: '10-video playlist for learning GitHub basics.',                        type: 'Video',  category: 'Community & Media' },
+      { id: 0,  title: 'Prompt Master',           url: 'https://github.com/nidhinjs/prompt-master',                                                          description: 'Claude skill that writes accurate prompts for any AI tool.',          type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 1,  title: 'System Prompts',           url: 'https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools',                                 description: 'System prompts from top AI companies; useful for instruction ideas.',  type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 2,  title: 'Anthropic GitHub',         url: 'https://github.com/anthropics',                                                                     description: 'Official Anthropic repos including agents, skills, and guides.',       type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 3,  title: 'Factchecker Skill',        url: 'https://github.com/Shubhamsaboo/awesome-llm-apps/blob/main/awesome_agent_skills/fact-checker/SKILL.md', description: 'Fact-checker skill for Claude.',                                    type: 'GitHub', category: 'GitHub Repos & Skills' },
+      { id: 4,  title: 'Claude API Docs',          url: 'https://platform.claude.com/docs/en/home',                                                          description: 'Learn APIs and advanced coding/automation.',                           type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 5,  title: 'Claude Agents Guide',      url: 'https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview',                       description: 'How to build and use Claude agents.',                                 type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 6,  title: 'Anthropic Courses',        url: 'https://anthropic.skilljar.com/',                                                                   description: 'Official Anthropic courses for structured learning.',                  type: 'Course', category: 'Anthropic Learning' },
+      { id: 7,  title: 'Superpowers Plugin',       url: 'https://claude.com/plugins/superpowers',                                                            description: 'Claude Code skills for advanced development workflows.',               type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 8,  title: 'Claude Code Quickstart',   url: 'https://code.claude.com/docs/en/quickstart',                                                        description: 'Basics of Claude Code from Anthropic.',                               type: 'Docs',   category: 'Anthropic Learning' },
+      { id: 9,  title: 'Reddit: Prompt Master',    url: 'https://www.reddit.com/r/ClaudeAI/comments/1rxyarx/i_built_a_claude_skill_that_writes_accurate/', description: 'Community post about the Prompt Master skill.',                        type: 'Reddit', category: 'Community & Media' },
+      { id: 10, title: 'Reddit: Claude Skills',    url: 'https://www.reddit.com/r/ClaudeCowork/comments/1s3ljzh/6_skills_i_actually_use_every_day/',       description: '6 Claude skills used daily; paths to add skills.',                    type: 'Reddit', category: 'Community & Media' },
+      { id: 11, title: 'YouTube: GitHub Beginners',url: 'https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f',              description: '10-video playlist for learning GitHub basics.',                        type: 'Video',  category: 'Community & Media' },
     ];
 
     const SEED_CATEGORIES = ['GitHub Repos & Skills', 'Anthropic Learning', 'Community & Media'];
     const SEED_TYPES      = ['GitHub', 'Video', 'Docs', 'Reddit', 'Course', 'Other'];
 
+    // Demo recipes so the feature is populated on first load (mix of link + note).
+    const SEED_RECIPES = [
+      { id: 1, type: 'link', title: 'Miso-Butter Salmon',       url: 'https://www.bonappetit.com',   source: 'Bon Appétit' },
+      { id: 2, type: 'link', title: 'Weeknight Chili',          url: 'https://cooking.nytimes.com',  source: 'NYT Cooking' },
+      { id: 3, type: 'link', title: 'Lemon-Herb Roast Chicken', url: 'https://www.seriouseats.com',  source: 'Serious Eats' },
+      { id: 4, type: 'note', title: 'Grandma’s Pancakes',       body: '<b>Dry:</b> 1½ cups flour, 3½ tsp baking powder, 1 tbsp sugar, pinch salt.<br><b>Wet:</b> 1¼ cups milk, 1 egg, 3 tbsp melted butter.<ul><li>Whisk dry, add wet, don’t overmix.</li><li>Cook on medium until bubbles pop.</li></ul>' },
+    ];
+
     // ═══════════════════════════════════════════════════════════
     // STATE
     // ═══════════════════════════════════════════════════════════
-
     let currentFilter       = 'all';
     let pendingCompletionId = null;
     let selectedRating      = 0;
-    let pendingEditId        = null;
-    let pendingDeleteId      = null;
-    let pendingEditReviewId  = null;
-    let editSelectedRating   = 0;
+    let pendingEditId       = null;
+    let deleteContext       = null;   // { kind: 'resource' | 'recipe', id }
+    let pendingEditReviewId = null;
+    let editSelectedRating  = 0;
+    let currentTab          = 'home';
+    let recipeType          = 'link'; // active type in recipe modal
+    let pendingRecipeId     = null;   // null = adding
 
     // ═══════════════════════════════════════════════════════════
-    // LOCALSTORAGE HELPERS
+    // HELPERS
     // ═══════════════════════════════════════════════════════════
-
-    function load(key) {
-      try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
-    }
-
-    function save(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // ESCAPE HELPER — prevents XSS in dynamically built HTML
-    // ═══════════════════════════════════════════════════════════
+    function load(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
+    function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 
     function esc(str) {
       return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // INIT — seeds localStorage on first load;
-    //         migrates v1 completion state if present
-    // ═══════════════════════════════════════════════════════════
-
-    function initData() {
-      if (load(KEYS.resources) !== null) return; // already seeded
-
-      // Migrate v1 checkbox state (stored under 'ai-hub-completed')
-      let v1State = {};
-      try { v1State = JSON.parse(localStorage.getItem('ai-hub-completed')) || {}; } catch {}
-
-      const completionData = {};
-      SEED_RESOURCES.forEach(r => {
-        if (v1State[String(r.id)]) {
-          completionData[r.id] = { completed: true, dateCompleted: '', summary: '', type: r.type, rating: 0 };
-        }
+    // Sanitize rich-text HTML before storing / rendering (recipe notes).
+    function sanitizeHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      tmp.querySelectorAll('script,iframe,object,embed,style,link,meta,form,input,button').forEach(n => n.remove());
+      tmp.querySelectorAll('*').forEach(el => {
+        [...el.attributes].forEach(a => {
+          const n = a.name.toLowerCase();
+          if (n.startsWith('on')) el.removeAttribute(a.name);
+          if ((n === 'href' || n === 'src' || n === 'srcset') && !/^(https?:|#|mailto:)/i.test(a.value.trim())) {
+            el.removeAttribute(a.name);
+          }
+        });
       });
-
-      save(KEYS.resources,  SEED_RESOURCES);
-      save(KEYS.categories, SEED_CATEGORIES);
-      save(KEYS.types,      SEED_TYPES);
-      save(KEYS.completion, completionData);
+      return tmp.innerHTML;
     }
 
     // ═══════════════════════════════════════════════════════════
-    // UI UTILITIES
+    // INIT / SEED
     // ═══════════════════════════════════════════════════════════
+    function initData() {
+      if (load(KEYS.resources) === null) {
+        let v1State = {};
+        try { v1State = JSON.parse(localStorage.getItem('ai-hub-completed')) || {}; } catch {}
+        const completionData = {};
+        SEED_RESOURCES.forEach(r => {
+          if (v1State[String(r.id)]) {
+            completionData[r.id] = { completed: true, dateCompleted: '', summary: '', type: r.type, rating: 0 };
+          }
+        });
+        save(KEYS.resources,  SEED_RESOURCES);
+        save(KEYS.categories, SEED_CATEGORIES);
+        save(KEYS.types,      SEED_TYPES);
+        save(KEYS.completion, completionData);
+      }
+      if (load(KEYS.recipes) === null) {
+        save(KEYS.recipes, SEED_RECIPES);
+      }
+    }
 
+    // ═══════════════════════════════════════════════════════════
+    // MODAL / MENU UTILITIES
+    // ═══════════════════════════════════════════════════════════
     function closeAllModals() {
       document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
     }
-
     function closeAllSettingsMenus() {
       document.querySelectorAll('.settings-menu').forEach(m => m.classList.add('hidden'));
     }
-
-    // Close settings menus on any click outside a gear-wrap
     document.addEventListener('click', function (e) {
       if (!e.target.closest('.gear-wrap')) closeAllSettingsMenus();
     });
 
     // ═══════════════════════════════════════════════════════════
-    // RENDER
+    // TAB SWITCHING (+ light hash support)
     // ═══════════════════════════════════════════════════════════
+    const TABS = ['home', 'news', 'links', 'recipes'];
 
+    function showTab(tab, updateHash) {
+      if (!TABS.includes(tab)) tab = 'home';
+      currentTab = tab;
+      TABS.forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+      });
+      document.querySelectorAll('.nav-link').forEach(a => {
+        a.classList.toggle('active', a.dataset.tab === tab);
+      });
+      if (updateHash !== false) {
+        history.replaceState(null, '', tab === 'home' ? location.pathname + location.search : '#' + tab);
+      }
+      if (tab === 'home')    { renderHomeWidgets(); }
+      if (tab === 'links')   { renderAll(); }
+      if (tab === 'recipes') { renderRecipes(); }
+      if (tab === 'news')    { ensureNewsLoaded(); }
+      window.scrollTo(0, 0);
+    }
+
+    document.querySelectorAll('.nav-link').forEach(a => {
+      a.addEventListener('click', e => { e.preventDefault(); showTab(a.dataset.tab); });
+    });
+    document.querySelectorAll('[data-tab-go]').forEach(el => {
+      el.addEventListener('click', () => showTab(el.dataset.tabGo));
+    });
+    window.addEventListener('hashchange', () => {
+      showTab((location.hash || '#home').slice(1), false);
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // HOME WIDGETS
+    // ═══════════════════════════════════════════════════════════
+    const MONTHS_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const DAYS_SHORT   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+    function renderGreeting() {
+      const now = new Date();
+      const h = now.getHours();
+      const greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+      document.getElementById('greeting').textContent = `${greet}, Dan`;
+      let hr = now.getHours(); const min = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hr >= 12 ? 'PM' : 'AM'; hr = hr % 12 || 12;
+      document.getElementById('greeting-time').textContent =
+        `${DAYS_SHORT[now.getDay()]} ${MONTHS_SHORT[now.getMonth()]} ${now.getDate()} · ${hr}:${min} ${ampm}`;
+    }
+
+    function renderHomeWidgets() {
+      renderGreeting();
+
+      // AI Links preview: completed/total + up to 4 most-recently-added
+      const resources      = load(KEYS.resources)  || [];
+      const completionData = load(KEYS.completion) || {};
+      const done  = Object.values(completionData).filter(d => d.completed).length;
+      document.getElementById('links-count').innerHTML = `${done}/${resources.length} &rarr;`;
+
+      const recent = [...resources].sort((a, b) => b.id - a.id).slice(0, 4);
+      const linksPreview = document.getElementById('links-preview');
+      if (recent.length === 0) {
+        linksPreview.innerHTML = '<div class="preview-empty">No resources yet.</div>';
+      } else {
+        linksPreview.innerHTML = recent.map(r => `
+          <a class="preview-row" href="${esc(r.url)}" target="_blank" rel="noopener">
+            <span class="preview-row-title"><span class="dot orange"></span><span class="txt">${esc(r.title)}</span></span>
+            <span class="neutral-tag">${esc(r.type)}</span>
+          </a>`).join('');
+      }
+
+      // Recipes preview: up to 4
+      const recipes = load(KEYS.recipes) || [];
+      const recipesPreview = document.getElementById('recipes-preview');
+      if (recipes.length === 0) {
+        recipesPreview.innerHTML = '<div class="preview-empty">No recipes yet.</div>';
+      } else {
+        recipesPreview.innerHTML = [...recipes].slice(-4).reverse().map(r => {
+          const tag = r.type === 'note' ? 'Personal' : (r.source || 'Link');
+          return `
+          <div class="preview-row" data-tab-go="recipes" style="cursor:pointer;">
+            <span class="preview-row-title"><span class="dot gold"></span><span class="txt">${esc(r.title)}</span></span>
+            <span class="neutral-tag">${esc(tag)}</span>
+          </div>`;
+        }).join('');
+        recipesPreview.querySelectorAll('[data-tab-go]').forEach(el =>
+          el.addEventListener('click', () => showTab('recipes')));
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // LINKS TAB — render
+    // ═══════════════════════════════════════════════════════════
     function renderAll() {
       const resources      = load(KEYS.resources)  || [];
       const categories     = load(KEYS.categories) || [];
@@ -1439,16 +1540,13 @@
       const openResources      = resources.filter(r => !completionData[r.id]?.completed);
       const completedResources = resources.filter(r =>  completionData[r.id]?.completed);
 
-      // ── Category sections (visible in All or Open) ──
       if (currentFilter !== 'completed') {
         categories.forEach(cat => {
           const cards = openResources.filter(r => r.category === cat);
-          if (cards.length === 0) return; // hide empty categories
+          if (cards.length === 0) return;
           main.appendChild(buildCategorySection(cat, cards));
         });
       }
-
-      // ── Completed section (visible in All or Completed) ──
       if (currentFilter !== 'open' && completedResources.length > 0) {
         main.appendChild(buildCompletedSection(completedResources, completionData));
       }
@@ -1458,34 +1556,26 @@
 
     function buildCategorySection(name, resources) {
       const section = document.createElement('section');
-      section.className = 'category';
-
-      const header = document.createElement('div');
-      header.className = 'category-header';
-      header.innerHTML = `<h2>${esc(name)}</h2><div class="divider"></div>`;
-
+      const head = document.createElement('div');
+      head.className = 'section-head';
+      head.innerHTML = `<span class="label">${esc(name)}</span><div class="rule"></div>`;
       const grid = document.createElement('div');
       grid.className = 'card-grid';
       resources.forEach(r => grid.appendChild(buildCard(r, false, null)));
-
-      section.appendChild(header);
+      section.appendChild(head);
       section.appendChild(grid);
       return section;
     }
 
     function buildCompletedSection(resources, completionData) {
       const section = document.createElement('section');
-      section.className = 'category completed-section';
-
-      const header = document.createElement('div');
-      header.className = 'category-header';
-      header.innerHTML = `<h2>Completed Resources</h2><div class="divider"></div>`;
-
+      const head = document.createElement('div');
+      head.className = 'section-head';
+      head.innerHTML = `<span class="label" style="color:var(--green);">Completed Resources</span><div class="rule"></div>`;
       const grid = document.createElement('div');
       grid.className = 'card-grid';
       resources.forEach(r => grid.appendChild(buildCard(r, true, completionData[r.id])));
-
-      section.appendChild(header);
+      section.appendChild(head);
       section.appendChild(grid);
       return section;
     }
@@ -1494,22 +1584,18 @@
       const card = document.createElement('div');
       card.className = 'card' + (isCompleted ? ' completed' : '');
 
-      // Build review data block for completed cards
       let reviewHtml = '';
       if (isCompleted && reviewData) {
         const metaParts = [];
         if (reviewData.dateCompleted) metaParts.push(`<span class="review-date">${esc(reviewData.dateCompleted)}</span>`);
-        if (reviewData.rating)        metaParts.push(`<span class="review-stars">${'\u2605'.repeat(reviewData.rating)}${'\u2606'.repeat(5 - reviewData.rating)}</span>`);
+        if (reviewData.rating)        metaParts.push(`<span class="review-stars">${'★'.repeat(reviewData.rating)}${'☆'.repeat(5 - reviewData.rating)}</span>`);
         const metaHtml    = metaParts.length ? `<div class="review-meta">${metaParts.join('')}</div>` : '';
         const summaryHtml = reviewData.summary ? `<p class="review-summary">${esc(reviewData.summary)}</p>` : '';
-        if (metaHtml || summaryHtml) {
-          reviewHtml = `<div class="review-data">${metaHtml}${summaryHtml}</div>`;
-        }
+        if (metaHtml || summaryHtml) reviewHtml = `<div class="review-data">${metaHtml}${summaryHtml}</div>`;
       }
 
       const editReviewOption = isCompleted
-        ? `<button class="settings-option" data-action="edit-review">Edit Review</button>`
-        : '';
+        ? `<button class="settings-option" data-action="edit-review">Edit Review</button>` : '';
 
       const cardNotes = load(KEYS.cardNotes) || {};
       const hasNote   = !!cardNotes[resource.id];
@@ -1517,13 +1603,10 @@
       card.innerHTML = `
         <div class="card-top">
           <div class="card-title-wrap">
-            <div class="card-title">
-              <a href="${esc(resource.url)}" target="_blank" rel="noopener">${esc(resource.title)}</a>
-            </div>
-            <span class="tag">${esc(resource.type)}</span>
+            <div class="card-title"><a href="${esc(resource.url)}" target="_blank" rel="noopener">${esc(resource.title)}</a></div>
           </div>
           <div class="card-actions">
-            <button class="note-btn${hasNote ? ' has-note' : ''}" title="Notes"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2"/></svg></button>
+            <button class="note-btn${hasNote ? ' has-note' : ''}" title="Notes"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2"/></svg></button>
             <div class="gear-wrap">
               <button class="gear-btn" title="Settings">&#9881;</button>
               <div class="settings-menu hidden">
@@ -1532,11 +1615,10 @@
                 <button class="settings-option delete-option" data-action="delete">Delete</button>
               </div>
             </div>
-            <div class="check-wrap">
-              <input type="checkbox" data-id="${esc(String(resource.id))}" title="Mark as completed"${isCompleted ? ' checked' : ''}>
-            </div>
+            <div class="check-wrap"><input type="checkbox" data-id="${esc(String(resource.id))}" title="Mark as completed"${isCompleted ? ' checked' : ''}></div>
           </div>
         </div>
+        <span class="neutral-tag">${esc(resource.type)}</span>
         <p class="card-desc">${esc(resource.description)}</p>
         ${reviewHtml}
       `;
@@ -1547,7 +1629,6 @@
 
       const gearBtn      = card.querySelector('.gear-btn');
       const settingsMenu = card.querySelector('.settings-menu');
-
       gearBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         const isOpen = !settingsMenu.classList.contains('hidden');
@@ -1560,9 +1641,9 @@
           e.stopPropagation();
           closeAllSettingsMenus();
           const action = this.dataset.action;
-          if (action === 'edit-card')    openEditCardModal(resource.id);
+          if (action === 'edit-card')        openEditCardModal(resource.id);
           else if (action === 'edit-review') openEditReviewModal(resource.id);
-          else if (action === 'delete')  openDeleteModal(resource.id);
+          else if (action === 'delete')      openDeleteModal('resource', resource.id);
         });
       });
 
@@ -1574,16 +1655,11 @@
       return card;
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // CHECKBOX HANDLER
-    // ═══════════════════════════════════════════════════════════
-
     function handleCheckboxChange(resourceId, isChecked) {
       if (isChecked) {
         pendingCompletionId = resourceId;
         openReviewModal(resourceId);
       } else {
-        // Uncheck: remove from completion data, return card to its category
         const completionData = load(KEYS.completion) || {};
         delete completionData[resourceId];
         save(KEYS.completion, completionData);
@@ -1591,22 +1667,13 @@
       }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // PROGRESS BAR
-    // ═══════════════════════════════════════════════════════════
-
     function updateProgress(resources, completionData) {
       const total = resources.length;
       const done  = Object.values(completionData).filter(d => d.completed).length;
-      const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-      document.getElementById('progress-text').textContent = `${done} / ${total} completed`;
-      document.getElementById('progress-fill').style.width = `${pct}%`;
+      document.getElementById('reviewed-line').textContent = `${done} of ${total} reviewed`;
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // FILTER BAR
-    // ═══════════════════════════════════════════════════════════
-
+    // Filter bar
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         currentFilter = btn.dataset.filter;
@@ -1618,7 +1685,6 @@
     // ═══════════════════════════════════════════════════════════
     // ADD RESOURCE MODAL
     // ═══════════════════════════════════════════════════════════
-
     const addModal     = document.getElementById('add-modal');
     const addForm      = document.getElementById('add-form');
     const typeSelect   = document.getElementById('res-type');
@@ -1628,62 +1694,39 @@
 
     document.getElementById('add-resource-btn').addEventListener('click', openAddModal);
     document.getElementById('add-cancel').addEventListener('click', closeAddModal);
-    // Click outside modal box to dismiss
     addModal.addEventListener('click', e => { if (e.target === addModal) closeAddModal(); });
 
     function openAddModal() {
       const types      = load(KEYS.types)      || SEED_TYPES;
       const categories = load(KEYS.categories) || SEED_CATEGORIES;
-
-      // Populate type dropdown
-      typeSelect.innerHTML =
-        types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('') +
-        '<option value="__new__">Add New Type...</option>';
-
-      // Populate category dropdown
-      catSelect.innerHTML =
-        categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('') +
-        '<option value="__new__">Add New Category...</option>';
-
+      typeSelect.innerHTML = types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('') + '<option value="__new__">Add New Type...</option>';
+      catSelect.innerHTML  = categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('') + '<option value="__new__">Add New Category...</option>';
       addForm.reset();
-      typeNewInput.classList.add('hidden');
-      typeNewInput.required = false;
-      catNewInput.classList.add('hidden');
-      catNewInput.required = false;
-
+      typeNewInput.classList.add('hidden'); typeNewInput.required = false;
+      catNewInput.classList.add('hidden');  catNewInput.required = false;
       addModal.classList.remove('hidden');
       document.getElementById('res-title').focus();
     }
+    function closeAddModal() { addModal.classList.add('hidden'); }
 
-    function closeAddModal() {
-      addModal.classList.add('hidden');
-    }
-
-    // Show/hide inline new-type input
     typeSelect.addEventListener('change', function () {
       const isNew = this.value === '__new__';
-      typeNewInput.classList.toggle('hidden', !isNew);
-      typeNewInput.required = isNew;
+      typeNewInput.classList.toggle('hidden', !isNew); typeNewInput.required = isNew;
       if (isNew) typeNewInput.focus();
     });
-
-    // Show/hide inline new-category input
     catSelect.addEventListener('change', function () {
       const isNew = this.value === '__new__';
-      catNewInput.classList.toggle('hidden', !isNew);
-      catNewInput.required = isNew;
+      catNewInput.classList.toggle('hidden', !isNew); catNewInput.required = isNew;
       if (isNew) catNewInput.focus();
     });
 
     addForm.addEventListener('submit', e => {
       e.preventDefault();
-
       const title = document.getElementById('res-title').value.trim();
       const url   = document.getElementById('res-url').value.trim();
       const desc  = document.getElementById('res-desc').value.trim();
       if (!title || !url || !desc) return;
 
-      // Resolve type — save new type to localStorage if needed
       let type = typeSelect.value;
       if (type === '__new__') {
         type = typeNewInput.value.trim();
@@ -1691,8 +1734,6 @@
         const types = load(KEYS.types) || [];
         if (!types.includes(type)) { types.push(type); save(KEYS.types, types); }
       }
-
-      // Resolve category — save new category to localStorage if needed
       let category = catSelect.value;
       if (category === '__new__') {
         category = catNewInput.value.trim();
@@ -1700,86 +1741,52 @@
         const categories = load(KEYS.categories) || [];
         if (!categories.includes(category)) { categories.push(category); save(KEYS.categories, categories); }
       }
-
-      // Save resource and re-render
       const resources = load(KEYS.resources) || [];
       resources.push({ id: Date.now(), title, url, description: desc, type, category });
       save(KEYS.resources, resources);
 
       closeAddModal();
-
-      // Switch filter so the new card is visible
       if (currentFilter === 'completed') {
         currentFilter = 'all';
-        document.querySelectorAll('.filter-btn').forEach(b =>
-          b.classList.toggle('active', b.dataset.filter === 'all')
-        );
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
       }
-
       renderAll();
     });
 
     // ═══════════════════════════════════════════════════════════
     // REVIEW MODAL
     // ═══════════════════════════════════════════════════════════
-
     const reviewModal = document.getElementById('review-modal');
     const reviewForm  = document.getElementById('review-form');
-
-    // Click outside modal box = skip (card still moves to Completed)
     reviewModal.addEventListener('click', e => { if (e.target === reviewModal) submitReview(false); });
     document.getElementById('review-skip').addEventListener('click', () => submitReview(false));
     reviewForm.addEventListener('submit', e => { e.preventDefault(); submitReview(true); });
 
-    // ── Star rating ──
     document.querySelectorAll('.star').forEach(star => {
-      star.addEventListener('click', () => {
-        selectedRating = parseInt(star.dataset.value, 10);
-        updateStars();
-      });
+      star.addEventListener('click', () => { selectedRating = parseInt(star.dataset.value, 10); updateStars(); });
       star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value, 10)));
       star.addEventListener('mouseout',  updateStars);
     });
-
-    function highlightStars(upTo) {
-      document.querySelectorAll('.star').forEach(s =>
-        s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)
-      );
-    }
-
+    function highlightStars(upTo) { document.querySelectorAll('.star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)); }
     function updateStars() { highlightStars(selectedRating); }
 
     function openReviewModal(resourceId) {
       const resources = load(KEYS.resources) || [];
-      const resource  = resources.find(r => r.id == resourceId); // == handles number/string coercion
+      const resource  = resources.find(r => r.id == resourceId);
       if (!resource) return;
-
-      selectedRating = 0;
-      reviewForm.reset();
-      updateStars();
-
+      selectedRating = 0; reviewForm.reset(); updateStars();
       document.getElementById('review-resource-name').textContent = resource.title;
       document.getElementById('review-type').value = resource.type;
       document.getElementById('review-date').value = new Date().toISOString().split('T')[0];
-
       reviewModal.classList.remove('hidden');
     }
 
     function submitReview(withData) {
       if (pendingCompletionId === null) return;
-
       const completionData = load(KEYS.completion) || {};
-
       completionData[pendingCompletionId] = withData
-        ? {
-            completed:     true,
-            dateCompleted: document.getElementById('review-date').value,
-            summary:       document.getElementById('review-summary').value.trim(),
-            type:          document.getElementById('review-type').value.trim(),
-            rating:        selectedRating,
-          }
+        ? { completed: true, dateCompleted: document.getElementById('review-date').value, summary: document.getElementById('review-summary').value.trim(), type: document.getElementById('review-type').value.trim(), rating: selectedRating }
         : { completed: true, dateCompleted: '', summary: '', type: '', rating: 0 };
-
       save(KEYS.completion, completionData);
       pendingCompletionId = null;
       reviewModal.classList.add('hidden');
@@ -1789,7 +1796,6 @@
     // ═══════════════════════════════════════════════════════════
     // EDIT CARD MODAL
     // ═══════════════════════════════════════════════════════════
-
     const editCardModal    = document.getElementById('edit-card-modal');
     const editCardForm     = document.getElementById('edit-card-form');
     const editTypeSelect   = document.getElementById('edit-type');
@@ -1802,15 +1808,12 @@
 
     editTypeSelect.addEventListener('change', function () {
       const isNew = this.value === '__new__';
-      editTypeNewInput.classList.toggle('hidden', !isNew);
-      editTypeNewInput.required = isNew;
+      editTypeNewInput.classList.toggle('hidden', !isNew); editTypeNewInput.required = isNew;
       if (isNew) editTypeNewInput.focus();
     });
-
     editCatSelect.addEventListener('change', function () {
       const isNew = this.value === '__new__';
-      editCatNewInput.classList.toggle('hidden', !isNew);
-      editCatNewInput.required = isNew;
+      editCatNewInput.classList.toggle('hidden', !isNew); editCatNewInput.required = isNew;
       if (isNew) editCatNewInput.focus();
     });
 
@@ -1818,48 +1821,29 @@
       const resources = load(KEYS.resources) || [];
       const resource  = resources.find(r => r.id == resourceId);
       if (!resource) return;
-
       pendingEditId = resourceId;
-
       const types      = load(KEYS.types)      || SEED_TYPES;
       const categories = load(KEYS.categories) || SEED_CATEGORIES;
-
-      editTypeSelect.innerHTML =
-        types.map(t => `<option value="${esc(t)}"${t === resource.type ? ' selected' : ''}>${esc(t)}</option>`).join('') +
-        '<option value="__new__">Add New Type...</option>';
-
-      editCatSelect.innerHTML =
-        categories.map(c => `<option value="${esc(c)}"${c === resource.category ? ' selected' : ''}>${esc(c)}</option>`).join('') +
-        '<option value="__new__">Add New Category...</option>';
-
-      editTypeNewInput.classList.add('hidden');
-      editTypeNewInput.required = false;
-      editCatNewInput.classList.add('hidden');
-      editCatNewInput.required = false;
-
+      editTypeSelect.innerHTML = types.map(t => `<option value="${esc(t)}"${t === resource.type ? ' selected' : ''}>${esc(t)}</option>`).join('') + '<option value="__new__">Add New Type...</option>';
+      editCatSelect.innerHTML  = categories.map(c => `<option value="${esc(c)}"${c === resource.category ? ' selected' : ''}>${esc(c)}</option>`).join('') + '<option value="__new__">Add New Category...</option>';
+      editTypeNewInput.classList.add('hidden'); editTypeNewInput.required = false;
+      editCatNewInput.classList.add('hidden');  editCatNewInput.required = false;
       document.getElementById('edit-title').value = resource.title;
       document.getElementById('edit-url').value   = resource.url;
       document.getElementById('edit-desc').value  = resource.description;
-
       closeAllModals();
       editCardModal.classList.remove('hidden');
       document.getElementById('edit-title').focus();
     }
-
-    function closeEditCardModal() {
-      editCardModal.classList.add('hidden');
-      pendingEditId = null;
-    }
+    function closeEditCardModal() { editCardModal.classList.add('hidden'); pendingEditId = null; }
 
     editCardForm.addEventListener('submit', e => {
       e.preventDefault();
       if (pendingEditId === null) return;
-
       const title = document.getElementById('edit-title').value.trim();
       const url   = document.getElementById('edit-url').value.trim();
       const desc  = document.getElementById('edit-desc').value.trim();
       if (!title || !url || !desc) return;
-
       let type = editTypeSelect.value;
       if (type === '__new__') {
         type = editTypeNewInput.value.trim();
@@ -1867,7 +1851,6 @@
         const types = load(KEYS.types) || [];
         if (!types.includes(type)) { types.push(type); save(KEYS.types, types); }
       }
-
       let category = editCatSelect.value;
       if (category === '__new__') {
         category = editCatNewInput.value.trim();
@@ -1875,125 +1858,97 @@
         const categories = load(KEYS.categories) || [];
         if (!categories.includes(category)) { categories.push(category); save(KEYS.categories, categories); }
       }
-
       const resources = load(KEYS.resources) || [];
       const idx = resources.findIndex(r => r.id == pendingEditId);
       if (idx !== -1) {
         resources[idx] = { ...resources[idx], title, url, description: desc, type, category };
         save(KEYS.resources, resources);
       }
-
       closeEditCardModal();
       renderAll();
     });
 
     // ═══════════════════════════════════════════════════════════
-    // DELETE MODAL
+    // DELETE MODAL (resource or recipe)
     // ═══════════════════════════════════════════════════════════
-
     const deleteModal = document.getElementById('delete-modal');
-
     document.getElementById('delete-cancel').addEventListener('click', closeDeleteModal);
     document.getElementById('delete-confirm').addEventListener('click', confirmDelete);
     deleteModal.addEventListener('click', e => { if (e.target === deleteModal) closeDeleteModal(); });
 
-    function openDeleteModal(resourceId) {
-      const resources = load(KEYS.resources) || [];
-      const resource  = resources.find(r => r.id == resourceId);
-      if (!resource) return;
-
-      pendingDeleteId = resourceId;
-      document.getElementById('delete-resource-name').textContent =
-        `Are you sure you want to delete "${resource.title}"?`;
-
+    function openDeleteModal(kind, id) {
+      let name = '';
+      if (kind === 'resource') {
+        const r = (load(KEYS.resources) || []).find(x => x.id == id);
+        if (!r) return; name = r.title;
+        document.getElementById('delete-title').textContent = 'Delete Resource';
+      } else {
+        const r = (load(KEYS.recipes) || []).find(x => x.id == id);
+        if (!r) return; name = r.title;
+        document.getElementById('delete-title').textContent = 'Delete Recipe';
+      }
+      deleteContext = { kind, id };
+      document.getElementById('delete-resource-name').textContent = `Are you sure you want to delete "${name}"?`;
       closeAllModals();
       deleteModal.classList.remove('hidden');
     }
-
-    function closeDeleteModal() {
-      deleteModal.classList.add('hidden');
-      pendingDeleteId = null;
-    }
+    function closeDeleteModal() { deleteModal.classList.add('hidden'); deleteContext = null; }
 
     function confirmDelete() {
-      if (pendingDeleteId === null) return;
-
-      const resources = (load(KEYS.resources) || []).filter(r => r.id != pendingDeleteId);
-      save(KEYS.resources, resources);
-
-      const completionData = load(KEYS.completion) || {};
-      delete completionData[pendingDeleteId];
-      save(KEYS.completion, completionData);
-
-      const cardNotes = load(KEYS.cardNotes) || {};
-      delete cardNotes[pendingDeleteId];
-      save(KEYS.cardNotes, cardNotes);
-
-      closeDeleteModal();
-      renderAll();
+      if (!deleteContext) return;
+      const { kind, id } = deleteContext;
+      if (kind === 'resource') {
+        save(KEYS.resources, (load(KEYS.resources) || []).filter(r => r.id != id));
+        const completionData = load(KEYS.completion) || {}; delete completionData[id]; save(KEYS.completion, completionData);
+        const cardNotes = load(KEYS.cardNotes) || {}; delete cardNotes[id]; save(KEYS.cardNotes, cardNotes);
+        closeDeleteModal();
+        renderAll();
+      } else {
+        save(KEYS.recipes, (load(KEYS.recipes) || []).filter(r => r.id != id));
+        closeDeleteModal();
+        renderRecipes();
+      }
     }
 
     // ═══════════════════════════════════════════════════════════
     // EDIT REVIEW MODAL
     // ═══════════════════════════════════════════════════════════
-
     const editReviewModal = document.getElementById('edit-review-modal');
     const editReviewForm  = document.getElementById('edit-review-form');
-
     document.getElementById('edit-review-cancel').addEventListener('click', closeEditReviewModal);
     editReviewModal.addEventListener('click', e => { if (e.target === editReviewModal) closeEditReviewModal(); });
     editReviewForm.addEventListener('submit', e => { e.preventDefault(); saveEditReview(); });
 
     document.querySelectorAll('.edit-star').forEach(star => {
-      star.addEventListener('click', () => {
-        editSelectedRating = parseInt(star.dataset.value, 10);
-        updateEditStars();
-      });
+      star.addEventListener('click', () => { editSelectedRating = parseInt(star.dataset.value, 10); updateEditStars(); });
       star.addEventListener('mouseover', () => highlightEditStars(parseInt(star.dataset.value, 10)));
       star.addEventListener('mouseout',  updateEditStars);
     });
-
-    function highlightEditStars(upTo) {
-      document.querySelectorAll('.edit-star').forEach(s =>
-        s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)
-      );
-    }
-
+    function highlightEditStars(upTo) { document.querySelectorAll('.edit-star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.value, 10) <= upTo)); }
     function updateEditStars() { highlightEditStars(editSelectedRating); }
 
     function openEditReviewModal(resourceId) {
       const resources = load(KEYS.resources) || [];
       const resource  = resources.find(r => r.id == resourceId);
       if (!resource) return;
-
       const completionData = load(KEYS.completion) || {};
       const review = completionData[resourceId] || {};
-
       pendingEditReviewId = resourceId;
       editSelectedRating  = review.rating || 0;
-
       document.getElementById('edit-review-resource-name').textContent = resource.title;
       document.getElementById('edit-review-date').value    = review.dateCompleted || new Date().toISOString().split('T')[0];
       document.getElementById('edit-review-summary').value = review.summary || '';
       document.getElementById('edit-review-type').value    = review.type || resource.type || '';
-
       updateEditStars();
-
       closeAllModals();
       editReviewModal.classList.remove('hidden');
     }
-
-    function closeEditReviewModal() {
-      editReviewModal.classList.add('hidden');
-      pendingEditReviewId = null;
-    }
+    function closeEditReviewModal() { editReviewModal.classList.add('hidden'); pendingEditReviewId = null; }
 
     function saveEditReview() {
       if (pendingEditReviewId === null) return;
-
       const completionData = load(KEYS.completion) || {};
       const existing = completionData[pendingEditReviewId] || {};
-
       completionData[pendingEditReviewId] = {
         ...existing,
         dateCompleted: document.getElementById('edit-review-date').value,
@@ -2001,194 +1956,262 @@
         type:          document.getElementById('edit-review-type').value.trim(),
         rating:        editSelectedRating,
       };
-
       save(KEYS.completion, completionData);
       closeEditReviewModal();
       renderAll();
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SCRATCHPAD
-    // ═══════════════════════════════════════════════════════════
-
-    const scratchpadWidget  = document.getElementById('scratchpad-widget');
-    const scratchpadToggle  = document.getElementById('scratchpad-toggle');
-    const scratchpadPanel   = document.getElementById('scratchpad-panel');
-    const scratchpadContent = document.getElementById('scratchpad-content');
-    const scratchpadLabel   = document.getElementById('scratchpad-label');
-    const scratchpadClose   = document.getElementById('scratchpad-close');
-
-    let scratchpadOpen = false;
-
-    function loadScratchpad() {
-      const saved = localStorage.getItem(KEYS.scratchpad);
-      if (saved) {
-        scratchpadContent.innerHTML = saved;
-        updateScratchpadLabel();
-      }
-    }
-
-    function saveScratchpad() {
-      localStorage.setItem(KEYS.scratchpad, scratchpadContent.innerHTML);
-      updateScratchpadLabel();
-    }
-
-    function updateScratchpadLabel() {
-      const text = scratchpadContent.innerText.trim();
-      const firstLine = text.split('\n').find(l => l.trim()) || '';
-      scratchpadLabel.textContent = firstLine.length > 22
-        ? firstLine.slice(0, 22) + '…'
-        : (firstLine || 'Scratchpad');
-    }
-
-    function openScratchpad() {
-      scratchpadPanel.classList.remove('hidden');
-      scratchpadOpen = true;
-      scratchpadContent.focus();
-    }
-
-    function closeScratchpad() {
-      scratchpadPanel.classList.add('hidden');
-      scratchpadOpen = false;
-    }
-
-    scratchpadToggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      scratchpadOpen ? closeScratchpad() : openScratchpad();
-    });
-
-    scratchpadClose.addEventListener('click', function (e) {
-      e.stopPropagation();
-      closeScratchpad();
-    });
-
-    // Click outside scratchpad widget to close
-    document.addEventListener('click', function (e) {
-      if (scratchpadOpen && !scratchpadWidget.contains(e.target)) {
-        closeScratchpad();
-      }
-    });
-
-    scratchpadContent.addEventListener('input', saveScratchpad);
-
-    // Formatting toolbar buttons
-    document.querySelectorAll('.scratchpad-fmt-btn').forEach(btn => {
-      btn.addEventListener('mousedown', e => e.preventDefault()); // preserve selection when clicking toolbar
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const action = this.dataset.action;
-        if (action === 'font-up' || action === 'font-down') {
-          const current = parseInt(document.queryCommandValue('fontSize')) || 3;
-          const next = action === 'font-up' ? Math.min(7, current + 1) : Math.max(1, current - 1);
-          document.execCommand('fontSize', false, String(next));
-        } else {
-          const cmd = this.dataset.cmd;
-          const val = this.dataset.val || null;
-          document.execCommand(cmd, false, val);
-        }
-        scratchpadContent.focus();
-        saveScratchpad();
-      });
-    });
-
-    // ═══════════════════════════════════════════════════════════
     // CARD NOTES MODAL
     // ═══════════════════════════════════════════════════════════
-
     const noteModal    = document.getElementById('note-modal');
     const noteTextarea = document.getElementById('note-textarea');
     const noteDelete   = document.getElementById('note-delete');
-    const noteCancel   = document.getElementById('note-cancel');
-    const noteSave     = document.getElementById('note-save');
+    let pendingNoteId  = null;
 
-    let pendingNoteId = null;
-
-    noteCancel.addEventListener('click', closeNoteModal);
+    document.getElementById('note-cancel').addEventListener('click', closeNoteModal);
     noteModal.addEventListener('click', e => { if (e.target === noteModal) closeNoteModal(); });
 
     noteDelete.addEventListener('click', function () {
       if (pendingNoteId === null) return;
-      const notes = load(KEYS.cardNotes) || {};
-      delete notes[pendingNoteId];
-      save(KEYS.cardNotes, notes);
-      closeNoteModal();
-      renderAll();
+      const notes = load(KEYS.cardNotes) || {}; delete notes[pendingNoteId]; save(KEYS.cardNotes, notes);
+      closeNoteModal(); renderAll();
     });
-
-    noteSave.addEventListener('click', function () {
+    document.getElementById('note-save').addEventListener('click', function () {
       if (pendingNoteId === null) return;
       const text = noteTextarea.value.trim();
       const notes = load(KEYS.cardNotes) || {};
-      if (text) {
-        notes[pendingNoteId] = text;
-      } else {
-        delete notes[pendingNoteId];
-      }
+      if (text) notes[pendingNoteId] = text; else delete notes[pendingNoteId];
       save(KEYS.cardNotes, notes);
-      closeNoteModal();
-      renderAll();
+      closeNoteModal(); renderAll();
     });
 
     function openNoteModal(resourceId) {
       const resources = load(KEYS.resources) || [];
       const resource  = resources.find(r => r.id == resourceId);
       if (!resource) return;
-
       pendingNoteId = resourceId;
-      const notes       = load(KEYS.cardNotes) || {};
-      const existingNote = notes[resourceId] || '';
-
+      const notes = load(KEYS.cardNotes) || {};
       document.getElementById('note-resource-name').textContent = resource.title;
-      noteTextarea.value = existingNote;
-      noteDelete.classList.toggle('hidden', !existingNote);
-
+      noteTextarea.value = notes[resourceId] || '';
+      noteDelete.classList.toggle('hidden', !notes[resourceId]);
       closeAllModals();
       noteModal.classList.remove('hidden');
       noteTextarea.focus();
     }
+    function closeNoteModal() { noteModal.classList.add('hidden'); pendingNoteId = null; }
 
-    function closeNoteModal() {
-      noteModal.classList.add('hidden');
-      pendingNoteId = null;
+    // ═══════════════════════════════════════════════════════════
+    // RECIPES TAB
+    // ═══════════════════════════════════════════════════════════
+    function renderRecipes() {
+      const recipes = load(KEYS.recipes) || [];
+      const wrap = document.getElementById('recipes-content');
+      const empty = document.getElementById('recipes-empty');
+      document.getElementById('recipes-count').textContent = `${recipes.length} saved`;
+      wrap.innerHTML = '';
+      empty.classList.toggle('hidden', recipes.length > 0);
+
+      recipes.forEach(r => wrap.appendChild(buildRecipeCard(r)));
+    }
+
+    function buildRecipeCard(recipe) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const isNote = recipe.type === 'note';
+      const titleHtml = isNote
+        ? `<div class="card-title" style="font-weight:600;font-size:16px;color:var(--text-primary);line-height:1.3;">${esc(recipe.title)}</div>`
+        : `<div class="card-title"><a href="${esc(recipe.url || '#')}" target="_blank" rel="noopener">${esc(recipe.title)}</a></div>`;
+
+      const tagHtml = isNote
+        ? `<span class="recipe-note-badge">Personal</span>`
+        : `<span class="neutral-tag">${esc(recipe.source || 'Link')}</span>`;
+
+      const bodyHtml = isNote && recipe.body
+        ? `<div class="recipe-body">${sanitizeHtml(recipe.body)}</div>` : '';
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-title-wrap">${titleHtml}</div>
+          <div class="card-actions">
+            <div class="gear-wrap">
+              <button class="gear-btn" title="Settings">&#9881;</button>
+              <div class="settings-menu hidden">
+                <button class="settings-option" data-action="edit-recipe">Edit Recipe</button>
+                <button class="settings-option delete-option" data-action="delete-recipe">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        ${tagHtml}
+        ${bodyHtml}
+      `;
+
+      const gearBtn = card.querySelector('.gear-btn');
+      const menu    = card.querySelector('.settings-menu');
+      gearBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = !menu.classList.contains('hidden');
+        closeAllSettingsMenus();
+        if (!isOpen) menu.classList.remove('hidden');
+      });
+      card.querySelectorAll('.settings-option').forEach(opt => {
+        opt.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeAllSettingsMenus();
+          if (this.dataset.action === 'edit-recipe')   openRecipeModal(recipe.id);
+          else if (this.dataset.action === 'delete-recipe') openDeleteModal('recipe', recipe.id);
+        });
+      });
+
+      return card;
+    }
+
+    // ── Recipe modal ──
+    const recipeModal   = document.getElementById('recipe-modal');
+    const recipeForm    = document.getElementById('recipe-form');
+    const recipeNoteEl  = document.getElementById('recipe-note-content');
+
+    document.getElementById('add-recipe-btn').addEventListener('click', () => openRecipeModal(null));
+    document.getElementById('recipe-cancel').addEventListener('click', closeRecipeModal);
+    recipeModal.addEventListener('click', e => { if (e.target === recipeModal) closeRecipeModal(); });
+
+    document.querySelectorAll('#recipe-type-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => setRecipeType(btn.dataset.rtype));
+    });
+
+    function setRecipeType(type) {
+      recipeType = type;
+      document.querySelectorAll('#recipe-type-toggle button').forEach(b => b.classList.toggle('active', b.dataset.rtype === type));
+      document.getElementById('recipe-link-fields').classList.toggle('hidden', type !== 'link');
+      document.getElementById('recipe-note-fields').classList.toggle('hidden', type !== 'note');
+    }
+
+    function openRecipeModal(id) {
+      pendingRecipeId = id;
+      recipeForm.reset();
+      recipeNoteEl.innerHTML = '';
+      document.getElementById('recipe-modal-title').textContent = id ? 'Edit Recipe' : 'Add Recipe';
+      document.getElementById('recipe-submit').textContent = id ? 'Save Changes' : 'Add Recipe';
+
+      if (id) {
+        const r = (load(KEYS.recipes) || []).find(x => x.id == id);
+        if (!r) return;
+        setRecipeType(r.type);
+        document.getElementById('recipe-title').value = r.title || '';
+        if (r.type === 'link') {
+          document.getElementById('recipe-url').value = r.url || '';
+          document.getElementById('recipe-source').value = r.source || '';
+        } else {
+          recipeNoteEl.innerHTML = sanitizeHtml(r.body || '');
+        }
+      } else {
+        setRecipeType('link');
+      }
+      closeAllModals();
+      recipeModal.classList.remove('hidden');
+      document.getElementById('recipe-title').focus();
+    }
+    function closeRecipeModal() { recipeModal.classList.add('hidden'); pendingRecipeId = null; }
+
+    recipeForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const title = document.getElementById('recipe-title').value.trim();
+      if (!title) return;
+
+      let obj;
+      if (recipeType === 'link') {
+        const url = document.getElementById('recipe-url').value.trim();
+        const source = document.getElementById('recipe-source').value.trim();
+        if (!url) { document.getElementById('recipe-url').focus(); return; }
+        obj = { type: 'link', title, url, source };
+      } else {
+        obj = { type: 'note', title, body: sanitizeHtml(recipeNoteEl.innerHTML) };
+      }
+
+      const recipes = load(KEYS.recipes) || [];
+      if (pendingRecipeId) {
+        const idx = recipes.findIndex(r => r.id == pendingRecipeId);
+        if (idx !== -1) recipes[idx] = { ...obj, id: recipes[idx].id };
+      } else {
+        obj.id = Date.now();
+        recipes.push(obj);
+      }
+      save(KEYS.recipes, recipes);
+      closeRecipeModal();
+      renderRecipes();
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // RICH-TEXT TOOLBARS (scratchpad + recipe note editor)
+    // ═══════════════════════════════════════════════════════════
+    function bindFormattingToolbar(toolbarEl, editableEl, onChange) {
+      toolbarEl.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const action = this.dataset.action;
+          if (action === 'font-up' || action === 'font-down') {
+            const current = parseInt(document.queryCommandValue('fontSize')) || 3;
+            const next = action === 'font-up' ? Math.min(7, current + 1) : Math.max(1, current - 1);
+            document.execCommand('fontSize', false, String(next));
+          } else {
+            document.execCommand(this.dataset.cmd, false, this.dataset.val || null);
+          }
+          editableEl.focus();
+          if (onChange) onChange();
+        });
+      });
     }
 
     // ═══════════════════════════════════════════════════════════
-    // WEATHER WIDGET
+    // SCRATCHPAD
     // ═══════════════════════════════════════════════════════════
+    const scratchpadWidget  = document.getElementById('scratchpad-widget');
+    const scratchpadToggle  = document.getElementById('scratchpad-toggle');
+    const scratchpadPanel   = document.getElementById('scratchpad-panel');
+    const scratchpadContent = document.getElementById('scratchpad-content');
+    const scratchpadLabel   = document.getElementById('scratchpad-label');
+    const scratchpadToolbar = scratchpadPanel.querySelector('.scratchpad-toolbar');
+    let scratchpadOpen = false;
 
+    function loadScratchpad() {
+      const saved = localStorage.getItem(KEYS.scratchpad);
+      if (saved) { scratchpadContent.innerHTML = saved; updateScratchpadLabel(); }
+    }
+    function saveScratchpad() {
+      localStorage.setItem(KEYS.scratchpad, scratchpadContent.innerHTML);
+      updateScratchpadLabel();
+    }
+    function updateScratchpadLabel() {
+      const text = scratchpadContent.innerText.trim();
+      const firstLine = text.split('\n').find(l => l.trim()) || '';
+      scratchpadLabel.textContent = firstLine.length > 22 ? firstLine.slice(0, 22) + '…' : (firstLine || 'Scratchpad');
+    }
+    function openScratchpad()  { scratchpadPanel.classList.remove('hidden'); scratchpadOpen = true; scratchpadContent.focus(); }
+    function closeScratchpad() { scratchpadPanel.classList.add('hidden'); scratchpadOpen = false; }
+
+    scratchpadToggle.addEventListener('click', function (e) { e.stopPropagation(); scratchpadOpen ? closeScratchpad() : openScratchpad(); });
+    document.getElementById('scratchpad-close').addEventListener('click', function (e) { e.stopPropagation(); closeScratchpad(); });
+    document.addEventListener('click', function (e) { if (scratchpadOpen && !scratchpadWidget.contains(e.target)) closeScratchpad(); });
+    scratchpadContent.addEventListener('input', saveScratchpad);
+    bindFormattingToolbar(scratchpadToolbar, scratchpadContent, saveScratchpad);
+
+    // recipe note editor toolbar
+    bindFormattingToolbar(document.querySelector('#recipe-rich .scratchpad-toolbar'), recipeNoteEl, null);
+
+    // ═══════════════════════════════════════════════════════════
+    // WEATHER (card, always-visible)
+    // ═══════════════════════════════════════════════════════════
     const WEATHER_ICONS = {
-      '01d': '☀️',  '01n': '🌙',
-      '02d': '🌤️', '02n': '☁️',
-      '03d': '☁️',  '03n': '☁️',
-      '04d': '☁️',  '04n': '☁️',
-      '09d': '🌧️', '09n': '🌧️',
-      '10d': '🌧️', '10n': '🌧️',
-      '11d': '⛈️', '11n': '⛈️',
-      '13d': '❄️',  '13n': '❄️',
-      '50d': '🌫️', '50n': '🌫️',
+      '01d': '☀️',  '01n': '🌙', '02d': '🌤️', '02n': '☁️', '03d': '☁️', '03n': '☁️',
+      '04d': '☁️',  '04n': '☁️', '09d': '🌧️', '09n': '🌧️', '10d': '🌧️', '10n': '🌧️',
+      '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️', '50d': '🌫️', '50n': '🌫️',
     };
+    function weatherIcon(code) { return WEATHER_ICONS[code] || '🌡️'; }
 
-    function weatherIcon(code) {
-      return WEATHER_ICONS[code] || '🌡️';
-    }
-
-    const weatherWidget  = document.getElementById('weather-widget');
-    const weatherToggle  = document.getElementById('weather-toggle');
-    const weatherPanel   = document.getElementById('weather-panel');
-    const weatherCompact = document.getElementById('weather-compact');
-    let weatherOpen = false;
-
-    weatherToggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      weatherOpen ? closeWeatherPanel() : openWeatherPanel();
-    });
-
-    document.addEventListener('click', function (e) {
-      if (weatherOpen && !weatherWidget.contains(e.target)) closeWeatherPanel();
-    });
-
-    function openWeatherPanel()  { weatherPanel.classList.remove('hidden'); weatherOpen = true; }
-    function closeWeatherPanel() { weatherPanel.classList.add('hidden');    weatherOpen = false; }
+    const weatherBody = document.getElementById('weather-body');
 
     function initWeather() {
       const savedCity = localStorage.getItem('ai_weather_city');
@@ -2206,33 +2229,25 @@
 
     async function fetchWeather(params) {
       try {
-        const query = params.city
-          ? `city=${encodeURIComponent(params.city)}`
-          : `lat=${params.lat}&lon=${params.lon}`;
+        const query = params.city ? `city=${encodeURIComponent(params.city)}` : `lat=${params.lat}&lon=${params.lon}`;
         const res = await fetch(`/api/weather?${query}`);
         if (!res.ok) { showWeatherError(); return; }
-        const data = await res.json();
-        renderWeather(data);
-      } catch {
-        showWeatherError();
-      }
+        renderWeather(await res.json());
+      } catch { showWeatherError(); }
     }
 
     function renderWeather(data) {
       const { current, forecast } = data;
       const icon = weatherIcon(current.icon);
-
-      weatherCompact.textContent = `${current.temp}° ${icon}`;
+      const savedCity = localStorage.getItem('ai_weather_city');
 
       const forecastRows = forecast.map(f => `
         <div class="weather-forecast-row">
           <span class="weather-forecast-day">${esc(f.day)}</span>
           <span class="weather-forecast-icon">${weatherIcon(f.icon)}</span>
           <span class="weather-forecast-hilo">${esc(f.high)}° / ${esc(f.low)}°</span>
-        </div>
-      `).join('');
+        </div>`).join('');
 
-      const savedCity = localStorage.getItem('ai_weather_city');
       const cityRow = savedCity
         ? `<div class="weather-city-row">
              <input type="text" class="weather-city-input" id="weather-city-input" value="${esc(savedCity)}" placeholder="City name">
@@ -2244,36 +2259,24 @@
              <button type="button" class="weather-city-submit" id="weather-city-submit">&#9654;</button>
            </div>`;
 
-      weatherPanel.innerHTML = `
-        <div class="weather-current">
-          <div class="weather-temp-row">
-            <span class="weather-temp-big">${esc(current.temp)}°F</span>
-            <span class="weather-icon-big">${icon}</span>
-          </div>
-          <div class="weather-condition">${esc(current.condition)}</div>
-          <div class="weather-hilo">H:&nbsp;${esc(current.high)}° &nbsp; L:&nbsp;${esc(current.low)}°</div>
-        </div>
-        <div class="weather-divider"></div>
+      weatherBody.innerHTML = `
+        <div class="weather-emoji">${icon}</div>
+        <div class="weather-temp">${esc(current.temp)}°</div>
+        <div class="weather-cond">${esc(current.condition)}</div>
+        <div class="weather-hilo">H:${esc(current.high)}° L:${esc(current.low)}°${savedCity ? ' · ' + esc(savedCity) : ''}</div>
         <div class="weather-forecast">${forecastRows}</div>
-        <div class="weather-divider"></div>
         ${cityRow}
       `;
-
       bindWeatherCityHandlers();
     }
 
     function showWeatherError() {
-      weatherCompact.textContent = 'Weather unavailable';
-
-      weatherPanel.innerHTML = `
+      weatherBody.innerHTML = `
         <div class="weather-error-text">Weather unavailable</div>
-        <div class="weather-set-city">Enter a city to try again:</div>
         <div class="weather-city-row">
-          <input type="text" class="weather-city-input" id="weather-city-input" placeholder="City name">
+          <input type="text" class="weather-city-input" id="weather-city-input" placeholder="Enter a city...">
           <button type="button" class="weather-city-submit" id="weather-city-submit">&#9654;</button>
-        </div>
-      `;
-
+        </div>`;
       bindWeatherCityHandlers();
     }
 
@@ -2281,38 +2284,120 @@
       const input  = document.getElementById('weather-city-input');
       const submit = document.getElementById('weather-city-submit');
       const clear  = document.getElementById('weather-city-clear');
-
       function submitCity() {
         const city = input.value.trim();
         if (!city) return;
         localStorage.setItem('ai_weather_city', city);
-        weatherCompact.textContent = '—° ⏳';
-        weatherPanel.innerHTML = '';
+        weatherBody.innerHTML = '<div class="weather-error-text">Loading…</div>';
         fetchWeather({ city });
       }
-
       if (submit) submit.addEventListener('click', submitCity);
       if (input)  input.addEventListener('keydown', e => { if (e.key === 'Enter') submitCity(); });
+      if (clear) clear.addEventListener('click', function () {
+        localStorage.removeItem('ai_weather_city');
+        weatherBody.innerHTML = '<div class="weather-error-text">Loading…</div>';
+        initWeather();
+      });
+    }
 
-      if (clear) {
-        clear.addEventListener('click', function () {
-          localStorage.removeItem('ai_weather_city');
-          weatherCompact.textContent = '—° ⏳';
-          weatherPanel.innerHTML = '';
-          closeWeatherPanel();
-          initWeather();
-        });
+    // ═══════════════════════════════════════════════════════════
+    // NEWS (lazy fetch on first tab open, session-cached)
+    // ═══════════════════════════════════════════════════════════
+    let newsLoaded = false, newsInFlight = false;
+
+    function formatNewsDate(pubDateStr) {
+      const date = new Date(pubDateStr);
+      const now = new Date();
+      const diffMin = Math.floor((now - date) / 60000);
+      const diffHrs = Math.floor((now - date) / 3600000);
+      if (diffMin < 1)  return 'just now';
+      if (diffMin < 60) return diffMin + ' min ago';
+      if (diffHrs < 24) return diffHrs + (diffHrs === 1 ? ' hr ago' : ' hrs ago');
+      const m = MONTHS_SHORT[date.getUTCMonth()].charAt(0) + MONTHS_SHORT[date.getUTCMonth()].slice(1).toLowerCase();
+      const d = date.getUTCDate();
+      return date.getUTCFullYear() === now.getUTCFullYear() ? `${m} ${d}` : `${m} ${d}, ${date.getUTCFullYear()}`;
+    }
+
+    function newsCardHtml(item, label, cls) {
+      return `
+        <a class="news-card" href="${esc(item.link)}" target="_blank" rel="noopener">
+          <div class="news-meta"><span class="source-tag ${cls}">${label}</span><span class="news-date">${formatNewsDate(item.pubDate)}</span></div>
+          <div class="news-card-title">${esc(item.title)}</div>
+          ${item.summary ? `<div class="news-summary">${esc(item.summary)}</div>` : ''}
+        </a>`;
+    }
+    function industryRowHtml(item, label, cls) {
+      return `
+        <a class="industry-row" href="${esc(item.link)}" target="_blank" rel="noopener">
+          <div class="news-meta"><span class="source-tag ${cls}">${label}</span><span class="news-date">${formatNewsDate(item.pubDate)}</span></div>
+          <div class="news-card-title">${esc(item.title)}</div>
+          ${item.summary ? `<div class="news-summary">${esc(item.summary)}</div>` : ''}
+        </a>`;
+    }
+
+    function newsSkeletons() {
+      const labSk = `<div class="skeleton-card"><div class="sk sk-badge"></div><div class="sk sk-title"></div><div class="sk sk-text"></div></div>`;
+      document.getElementById('lab-grid').innerHTML = labSk.repeat(4);
+      const rowSk = `<div class="skeleton-row"><div class="sk sk-badge"></div><div class="sk sk-title"></div><div class="sk sk-text"></div></div>`;
+      document.getElementById('industry-list').innerHTML = rowSk.repeat(6);
+    }
+
+    function ensureNewsLoaded() {
+      if (newsLoaded || newsInFlight) return;
+      loadNews();
+    }
+
+    async function loadNews() {
+      newsInFlight = true;
+      newsSkeletons();
+      const labGrid = document.getElementById('lab-grid');
+      const indList = document.getElementById('industry-list');
+      try {
+        const res = await fetch('/api/news');
+        if (!res.ok) throw new Error('non-200');
+        const data = await res.json();
+        const lab = data.labAnnouncements;
+        const ind = data.industryNews;
+
+        // Lab grid: OpenAI cards then Google AI cards
+        let labHtml = '';
+        if (lab.openai.status === 'ok' && lab.openai.items.length) labHtml += lab.openai.items.map(i => newsCardHtml(i, 'OpenAI', 'openai')).join('');
+        else labHtml += '<p class="feed-error">Could not load OpenAI items.</p>';
+        if (lab.googleai.status === 'ok' && lab.googleai.items.length) labHtml += lab.googleai.items.map(i => newsCardHtml(i, 'Google AI', 'googleai')).join('');
+        else labHtml += '<p class="feed-error">Could not load Google AI items.</p>';
+        labGrid.innerHTML = labHtml;
+
+        // Industry list
+        if (ind.techcrunch.status === 'ok' && ind.techcrunch.items.length) {
+          indList.innerHTML = ind.techcrunch.items.map(i => industryRowHtml(i, 'TechCrunch', 'techcrunch')).join('');
+        } else {
+          indList.innerHTML = '<div class="industry-row"><p class="feed-error">Could not load Industry News.</p></div>';
+        }
+
+        const allFailed = lab.openai.status === 'error' && lab.googleai.status === 'error' && ind.techcrunch.status === 'error';
+        if (allFailed) throw new Error('all-failed');
+
+        newsLoaded = true;
+      } catch {
+        labGrid.innerHTML = '';
+        indList.outerHTML = '<p class="feed-unavailable">News unavailable. Try again later.</p>';
+      } finally {
+        newsInFlight = false;
       }
     }
 
     // ═══════════════════════════════════════════════════════════
     // BOOT
     // ═══════════════════════════════════════════════════════════
-
     initData();
     loadScratchpad();
-    renderAll();
+    renderGreeting();
+    setInterval(renderGreeting, 30000);
     initWeather();
+
+    // initial tab from hash
+    const initialTab = (location.hash || '#home').slice(1);
+    showTab(TABS.includes(initialTab) ? initialTab : 'home', false);
 
   </script>
 

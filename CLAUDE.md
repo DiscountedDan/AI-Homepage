@@ -6,7 +6,7 @@ A personal homepage that centralizes AI learning resources into a single, visual
 ---
 
 ## Tech Stack
-- **HTML / CSS / JavaScript** — multi-page, no build step. All CSS and JS embedded per file
+- **HTML / CSS / JavaScript** — single-file app (four JS-switched tabs), no build step. All CSS and JS embedded in `index.html`
 - **localStorage** — all state and persistence; no framework, no build step
 - **Vercel Serverless Functions** — `/api` folder; each `.js` file becomes a route; API keys stored as Vercel environment variables, never in code
 - **npm / rss-parser** — `package.json` + `package-lock.json` at repo root; `rss-parser@^3.13.0` is the project's first (and currently only) npm dependency. Vercel auto-installs on deploy. No build step added.
@@ -34,16 +34,20 @@ A personal homepage that centralizes AI learning resources into a single, visual
 
 ---
 
-## Current Architecture (v5c)
+## Current Architecture (v6)
 
-Multi-page. No dependencies, no build step. Each page is self-contained. Resource cards rendered dynamically from localStorage on every load. No hardcoded cards in HTML.
+Single-file app. No dependencies, no build step. `index.html` is one file with four tabs — Home / News / Links / Recipes — switched via JS (`showTab()`, no page reload). Light `#news`/`#links`/`#recipes` hash support. Resource/recipe cards rendered dynamically from localStorage. No hardcoded cards in HTML. Light-mode design tokens baked into CSS custom properties (from the Claude Design export); no settings UI.
 
 ### Page Structure
-- `index.html` — home page; resource card logic, modals, weather widget, progress bar
-- `news.html` — AI news feed; two sections: Lab Announcements (OpenAI + Google AI, 2 items each) and Industry News (TechCrunch, 15 items); skeleton rows on load, fetches `/api/news` on DOMContentLoaded
-- `migrate.html` — localStorage export/import utility; accessed via direct URL only
+- `index.html` — the whole app: four tab sections + all modals. Nav (with tabs + scratchpad pill) and widgets live here once, not duplicated.
+  - **Home** — greeting + live date/time; widget grid: Weather (always-visible card), AI Links preview (completed/total + 3–4 most-recent resources → Links tab), To-Do (static placeholder), Recipes preview (up to 4 → Recipes tab)
+  - **News** — two sections (Lab Announcements 2-col card grid: OpenAI + Google AI 2 items each; Industry News list-card: TechCrunch 15 items). Lazy fetch on first tab open, session-cached; skeletons then `/api/news`
+  - **Links** — the resource manager (Add/Edit/Delete/Notes/Review modals, All/Open/Completed filter, categories). Rounded green filter pills, neutral-gray type tags
+  - **Recipes** — flat list (new feature); Add/Edit Recipe modal with Link/Note toggle, gear edit/delete
+- `migrate.html` — localStorage export/import utility; accessed via direct URL only. Not yet aware of `ai_recipes`
+- `specs/claude-design-export.html` — reference-only Claude Design export (not deployed/linked)
 
-Nav bar and scratchpad widget are duplicated across pages (intentional — no build step). Weather widget is homepage-only. Body content is wrapped in `.page-wrap`; nav sits outside it as a direct `<body>` child.
+The single container (`.app`) is a centered max-width card. Only three accent colors exist (green / red-orange / gold); green is the primary interactive color. Fonts (IBM Plex Sans / Space Grotesk / JetBrains Mono) via Google Fonts `<link>` with system fallback.
 
 ### localStorage Keys
 - `ai_resources` — array of all resource objects
@@ -53,6 +57,7 @@ Nav bar and scratchpad widget are duplicated across pages (intentional — no bu
 - `ai_scratchpad` — HTML string content of the global scratchpad widget
 - `ai_card_notes` — object of per-card notes keyed by resource ID
 - `ai_weather_city` — string, user's manually set city name for the weather widget. Empty/absent = use geolocation. Persists across sessions.
+- `ai_recipes` — array of recipe objects (V6). Flat list, no categories. Additive key; seeded with demo recipes on first load.
 
 ### Migration Utility
 - `migrate.html` — standalone export/import tool for migrating localStorage data from the local file to the live Vercel deployment. No dependency on `index.html`. Permanently deployed at `/migrate.html`. Import validates the shape of every known key before writing anything (all-or-nothing — a bad key aborts the whole import with an error naming it) and sanitizes `ai_scratchpad` HTML (strips `script`/`iframe`/etc., event-handler attributes, and non-http(s)/`#` `href`/`src`/`srcset` values) before it's written to localStorage.
@@ -68,6 +73,13 @@ Seeded resources use numeric IDs 0–11. User-added resources use `Date.now()` a
 { "completed": true, "dateCompleted": "2026-04-07", "summary": "", "type": "", "rating": 3 }
 ```
 `rating` is 1–5, or 0 if skipped. All fields except `completed` are empty string/0 if user skipped the review.
+
+### Recipe Object Shape
+```json
+{ "id": 0, "title": "", "type": "link", "url": "", "source": "" }
+{ "id": 0, "title": "", "type": "note", "body": "<sanitized html>" }
+```
+`type` is `'link'` (has `url` + typed `source` tag) or `'note'` (has rich-text `body`, sanitized on save/render). Seeded recipes use IDs 1–4; user-added use `Date.now()`.
 
 ---
 
@@ -90,4 +102,6 @@ Never rename or restructure the localStorage keys or object shapes defined above
 
 **Per-card notes** — notepad icon on every card (hollow when empty, solid yellow when a note exists). Opens a modal with a free-text textarea. Notes persist independently of card edits and are removed when a card is deleted.
 
-**AI news feed** — live two-section feed on `news.html`. Lab Announcements shows the 2 most recent items from OpenAI and Google AI (grouped by source, OpenAI first). Industry News shows 15 most recent TechCrunch AI items. Skeleton rows render immediately; real content replaces them when `/api/news` resolves. Per-source, per-section, and total-failure error states handled. Summaries sanitized and truncated to 150 chars server-side. Cached at Vercel edge for 10 minutes.
+**AI news feed** — live two-section feed on the News tab. Lab Announcements shows the 2 most recent items from OpenAI and Google AI as a 2-col card grid (OpenAI first). Industry News shows 15 most recent TechCrunch AI items as a bordered list-card. Source tags are colour-tinted per source (OpenAI red-orange, Google AI green, TechCrunch gold). Fetch is **lazy** (first time the News tab is opened) and **session-cached**; skeletons render first, replaced when `/api/news` resolves. Per-source, per-section, and total-failure error states handled. Summaries sanitized and truncated to 150 chars server-side. Cached at Vercel edge for 10 minutes.
+
+**Recipes** (V6) — flat list on the Recipes tab (new `ai_recipes` key). Add Recipe modal with a Link/Note toggle: Link items have title + URL + typed source tag; Note items have title + rich-text body (same `execCommand` toolbar as the scratchpad, sanitized on save). Gear-icon Edit/Delete matching the Resources pattern. Note items show a neutral "Personal" badge; source tags are neutral gray for all sources. Home shows a preview of up to 4.
