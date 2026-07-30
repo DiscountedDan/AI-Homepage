@@ -63,3 +63,13 @@ A log of major architectural and design decisions made over the life of this pro
 - **To-Do widget is a static visual placeholder only** (sample tasks, no add/check/delete, no persistence) — full functionality explicitly deferred to a future build
 - Weather moved from a floating collapsed pill + panel to an **always-visible Home widget card**; `fetchWeather` / `renderWeather` / `WEATHER_ICONS` / `ai_weather_city` logic reused, only the render target changed (renders inline into the card, no toggle)
 - The original Claude Design export is kept at `specs/claude-design-export.html` as a reference-only artifact (not linked from the app)
+
+## 2026-07-30 (v6a — functional To-Do widget)
+- **To-Do widget goes from static placeholder to fully functional** — add/check/uncheck/delete/clear-completed, backed by a new additive localStorage key `ai_todos` (flat array, same pattern as `ai_recipes`). Still Home-tab-only; no dedicated To-Do tab
+- **No seed data** — the widget starts empty on first load, deliberately contrasting with `ai_recipes`' seeded demo content, since sample tasks would be confusing clutter rather than a helpful demo
+- **Delete has no confirmation modal** — intentionally lighter-weight than the Resource/Recipe delete flows (`openDeleteModal`/`deleteContext`), since re-adding a mistakenly-deleted task costs almost nothing
+- **No in-place editing** — out of scope for this version; the correction flow is delete-and-re-add
+- **Completed tasks sink to their own group below open tasks** (divider, not a full section header); order within the completed group is unspecified/not important, so it's just left in array order
+- **Open tasks prepend (newest-first)** on add, matching the spec's "adds to the top of the open-tasks group"
+- **Task list has a fixed-height scrollable container** (`overflow-y: auto`, explicit `max-height`) so the widget card doesn't grow with task count — same explicit-max-height pattern as `.modal-rich .rich-content`, not the scratchpad panel's flex-based approach, since `.widget` isn't a flex column
+- `migrate.html` intentionally **not** updated to support `ai_todos` — confirmed out of scope per spec; the migration utility is no longer an active concern going forward

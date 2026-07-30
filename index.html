@@ -529,20 +529,54 @@
       text-transform: uppercase;
     }
 
-    /* To-Do static rows */
+    /* To-Do rows */
     .todo-row { display: flex; align-items: center; gap: 12px; }
     .todo-box {
       width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
       border: 1.5px solid var(--checkbox-border);
+      cursor: pointer;
     }
     .todo-box.done {
       background: var(--green); border-color: var(--green);
       display: flex; align-items: center; justify-content: center;
       color: var(--on-accent); font-size: 11px;
     }
-    .todo-text { font-size: 14px; color: var(--text-strong); }
+    .todo-text { font-size: 14px; color: var(--text-strong); flex: 1; min-width: 0; }
     .todo-text.done { color: var(--text-faint); text-decoration: line-through; }
     .todo-list { display: flex; flex-direction: column; gap: 14px; }
+    .todo-completed-group {
+      display: flex; flex-direction: column; gap: 14px;
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid var(--hairline);
+    }
+    .todo-input {
+      width: 100%;
+      background: var(--field-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 0.4rem 0.55rem;
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+    .todo-input:focus { outline: none; border-color: var(--green); }
+    .todo-add-row { margin-bottom: 12px; }
+    .todo-scroll { height: 210px; overflow-y: auto; }
+    .todo-clear-btn {
+      display: block;
+      margin-left: auto;
+      margin-top: 10px;
+      background: transparent;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: var(--text-faint);
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .todo-clear-btn:hover { color: var(--green); }
 
     /* ═══════════════════════════════════════════════════════════
        LINKS TAB
@@ -690,7 +724,7 @@
 
     /* gear + note buttons */
     .gear-wrap { position: relative; }
-    .gear-btn, .note-btn {
+    .gear-btn, .note-btn, .todo-add-btn, .todo-delete-btn {
       background: transparent;
       border: none;
       color: var(--text-faint);
@@ -708,6 +742,10 @@
     .gear-btn { font-size: 0.95rem; }
     .note-btn:hover { color: var(--green); }
     .note-btn.has-note { color: var(--has-note); }
+    .todo-add-btn { font-size: 1rem; font-weight: 600; flex-shrink: 0; }
+    .todo-add-btn:hover { color: var(--green); }
+    .todo-delete-btn { font-size: 0.7rem; flex-shrink: 0; width: 18px; height: 18px; }
+    .todo-delete-btn:hover { color: var(--danger); }
 
     .settings-menu {
       position: absolute;
@@ -1118,15 +1156,20 @@
           <div class="preview-list" id="links-preview"></div>
         </div>
 
-        <!-- To-Do (static placeholder) -->
+        <!-- To-Do -->
         <div class="widget green">
-          <div class="widget-label green">To-Do &middot; 1 of 4 done</div>
-          <div class="todo-list">
-            <div class="todo-row"><div class="todo-box done">&#10003;</div><span class="todo-text done">Ship dashboard redesign</span></div>
-            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Review Q3 roadmap doc</span></div>
-            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Reply to Sarah re: contract</span></div>
-            <div class="todo-row"><div class="todo-box"></div><span class="todo-text">Book dentist appointment</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div class="widget-label green" id="todo-label" style="margin-bottom:0;">To-Do &middot; 0 open</div>
+            <button class="todo-add-btn" id="todo-add-btn" type="button" title="Add task">+</button>
           </div>
+          <div class="todo-add-row hidden" id="todo-add-row">
+            <input type="text" id="todo-input" class="todo-input" placeholder="New task...">
+          </div>
+          <div class="todo-scroll" id="todo-scroll">
+            <div class="todo-list" id="todo-list"></div>
+            <div class="empty-note hidden" id="todo-empty">No Tasks Yet</div>
+          </div>
+          <button class="todo-clear-btn hidden" id="todo-clear-btn" type="button">Clear completed</button>
         </div>
 
         <!-- Recipes preview -->
@@ -1328,6 +1371,7 @@
       scratchpad: 'ai_scratchpad',
       cardNotes:  'ai_card_notes',
       recipes:    'ai_recipes',
+      todos:      'ai_todos',
     };
 
     const SEED_RESOURCES = [
@@ -1488,6 +1532,7 @@
 
     function renderHomeWidgets() {
       renderGreeting();
+      renderTodoWidget();
 
       // AI Links preview: completed/total + up to 4 most-recently-added
       const resources      = load(KEYS.resources)  || [];
@@ -1525,6 +1570,95 @@
           el.addEventListener('click', () => showTab('recipes')));
       }
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // TO-DO WIDGET
+    // ═══════════════════════════════════════════════════════════
+    function addTodo(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return false;
+      const todos = load(KEYS.todos) || [];
+      todos.unshift({ id: Date.now(), text: trimmed, completed: false });
+      save(KEYS.todos, todos);
+      renderTodoWidget();
+      return true;
+    }
+
+    function toggleTodo(id) {
+      const todos = load(KEYS.todos) || [];
+      const t = todos.find(x => x.id === id);
+      if (!t) return;
+      t.completed = !t.completed;
+      save(KEYS.todos, todos);
+      renderTodoWidget();
+    }
+
+    function deleteTodo(id) {
+      const todos = (load(KEYS.todos) || []).filter(x => x.id !== id);
+      save(KEYS.todos, todos);
+      renderTodoWidget();
+    }
+
+    function clearCompletedTodos() {
+      const todos = (load(KEYS.todos) || []).filter(x => !x.completed);
+      save(KEYS.todos, todos);
+      renderTodoWidget();
+    }
+
+    function buildTodoRow(todo) {
+      const row = document.createElement('div');
+      row.className = 'todo-row';
+      row.innerHTML = `
+        <div class="todo-box ${todo.completed ? 'done' : ''}">${todo.completed ? '&#10003;' : ''}</div>
+        <span class="todo-text ${todo.completed ? 'done' : ''}">${esc(todo.text)}</span>
+        <button class="todo-delete-btn" type="button" title="Delete">&#10005;</button>
+      `;
+      row.querySelector('.todo-box').addEventListener('click', () => toggleTodo(todo.id));
+      row.querySelector('.todo-delete-btn').addEventListener('click', () => deleteTodo(todo.id));
+      return row;
+    }
+
+    function renderTodoWidget() {
+      const todos     = load(KEYS.todos) || [];
+      const open      = todos.filter(t => !t.completed);
+      const completed = todos.filter(t => t.completed);
+
+      document.getElementById('todo-label').innerHTML = `To-Do &middot; ${open.length} open`;
+
+      const list  = document.getElementById('todo-list');
+      const empty = document.getElementById('todo-empty');
+      list.innerHTML = '';
+
+      empty.classList.toggle('hidden', todos.length > 0);
+      if (todos.length > 0) {
+        open.forEach(t => list.appendChild(buildTodoRow(t)));
+        if (completed.length > 0) {
+          const group = document.createElement('div');
+          group.className = 'todo-completed-group';
+          completed.forEach(t => group.appendChild(buildTodoRow(t)));
+          list.appendChild(group);
+        }
+      }
+
+      document.getElementById('todo-clear-btn').classList.toggle('hidden', completed.length === 0);
+    }
+
+    document.getElementById('todo-add-btn').addEventListener('click', () => {
+      const row = document.getElementById('todo-add-row');
+      const input = document.getElementById('todo-input');
+      const opening = row.classList.contains('hidden');
+      row.classList.toggle('hidden');
+      if (opening) { input.value = ''; input.focus(); }
+    });
+    document.getElementById('todo-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (addTodo(e.target.value)) { e.target.value = ''; e.target.focus(); }
+      } else if (e.key === 'Escape') {
+        document.getElementById('todo-add-row').classList.add('hidden');
+      }
+    });
+    document.getElementById('todo-clear-btn').addEventListener('click', clearCompletedTodos);
 
     // ═══════════════════════════════════════════════════════════
     // LINKS TAB — render

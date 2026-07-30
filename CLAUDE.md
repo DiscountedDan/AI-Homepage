@@ -40,7 +40,7 @@ Single-file app. No dependencies, no build step. `index.html` is one file with f
 
 ### Page Structure
 - `index.html` — the whole app: four tab sections + all modals. Nav (with tabs + scratchpad pill) and widgets live here once, not duplicated.
-  - **Home** — greeting + live date/time; widget grid: Weather (always-visible card), AI Links preview (completed/total + 3–4 most-recent resources → Links tab), To-Do (static placeholder), Recipes preview (up to 4 → Recipes tab)
+  - **Home** — greeting + live date/time; widget grid: Weather (always-visible card), AI Links preview (completed/total + 3–4 most-recent resources → Links tab), To-Do (functional — add/check/delete/clear-completed, `ai_todos` key), Recipes preview (up to 4 → Recipes tab)
   - **News** — two sections (Lab Announcements 2-col card grid: OpenAI + Google AI 2 items each; Industry News list-card: TechCrunch 15 items). Lazy fetch on first tab open, session-cached; skeletons then `/api/news`
   - **Links** — the resource manager (Add/Edit/Delete/Notes/Review modals, All/Open/Completed filter, categories). Rounded green filter pills, neutral-gray type tags
   - **Recipes** — flat list (new feature); Add/Edit Recipe modal with Link/Note toggle, gear edit/delete
@@ -58,6 +58,7 @@ The single container (`.app`) is a centered max-width card. Only three accent co
 - `ai_card_notes` — object of per-card notes keyed by resource ID
 - `ai_weather_city` — string, user's manually set city name for the weather widget. Empty/absent = use geolocation. Persists across sessions.
 - `ai_recipes` — array of recipe objects (V6). Flat list, no categories. Additive key; seeded with demo recipes on first load.
+- `ai_todos` — array of task objects (V6a). Flat list, no seed data — starts empty.
 
 ### Migration Utility
 - `migrate.html` — standalone export/import tool for migrating localStorage data from the local file to the live Vercel deployment. No dependency on `index.html`. Permanently deployed at `/migrate.html`. Import validates the shape of every known key before writing anything (all-or-nothing — a bad key aborts the whole import with an error naming it) and sanitizes `ai_scratchpad` HTML (strips `script`/`iframe`/etc., event-handler attributes, and non-http(s)/`#` `href`/`src`/`srcset` values) before it's written to localStorage.
@@ -80,6 +81,12 @@ Seeded resources use numeric IDs 0–11. User-added resources use `Date.now()` a
 { "id": 0, "title": "", "type": "note", "body": "<sanitized html>" }
 ```
 `type` is `'link'` (has `url` + typed `source` tag) or `'note'` (has rich-text `body`, sanitized on save/render). Seeded recipes use IDs 1–4; user-added use `Date.now()`.
+
+### Task Object Shape
+```json
+{ "id": 0, "text": "", "completed": false }
+```
+No seeded tasks — widget starts empty. `id` is always `Date.now()`.
 
 ---
 
@@ -105,3 +112,5 @@ Never rename or restructure the localStorage keys or object shapes defined above
 **AI news feed** — live two-section feed on the News tab. Lab Announcements shows the 2 most recent items from OpenAI and Google AI as a 2-col card grid (OpenAI first). Industry News shows 15 most recent TechCrunch AI items as a bordered list-card. Source tags are colour-tinted per source (OpenAI red-orange, Google AI green, TechCrunch gold). Fetch is **lazy** (first time the News tab is opened) and **session-cached**; skeletons render first, replaced when `/api/news` resolves. Per-source, per-section, and total-failure error states handled. Summaries sanitized and truncated to 150 chars server-side. Cached at Vercel edge for 10 minutes.
 
 **Recipes** (V6) — flat list on the Recipes tab (new `ai_recipes` key). Add Recipe modal with a Link/Note toggle: Link items have title + URL + typed source tag; Note items have title + rich-text body (same `execCommand` toolbar as the scratchpad, sanitized on save). Gear-icon Edit/Delete matching the Resources pattern. Note items show a neutral "Personal" badge; source tags are neutral gray for all sources. Home shows a preview of up to 4.
+
+**To-Do widget** (V6a) — functional Home-tab-only widget backed by `ai_todos`, no seed data. Header shows a live "To-Do · X open" count and a "+" button that reveals an inline add-task input (Enter to submit, empty/whitespace rejected). Checking a task strikes it through and sinks it to a completed group below the open tasks; unchecking reverses it. Every task has a delete icon that removes it immediately with no confirmation (lighter-weight than the Resource/Recipe delete flows, since re-adding a task is cheap). A "Clear completed" button (visible only when completed tasks exist) removes all completed tasks at once. No in-place editing — delete-and-re-add is the correction flow. The task list scrolls internally past a fixed height so the widget card doesn't grow with task count.
